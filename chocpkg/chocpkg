@@ -9,9 +9,10 @@ basic_setup() {
         exit -1
     fi
     INSTALL_DIR="$CHOCPKG_ROOT/install"
+    NATIVE_INSTALL_DIR="$CHOCPKG_ROOT/install.native"
     PACKAGES_DIR="$CHOCPKG_ROOT/packages"
     BUILD_DIR="$CHOCPKG_ROOT/build"
-    mkdir -p "$INSTALL_DIR" "$PACKAGES_DIR" "$BUILD_DIR"
+    mkdir -p "$INSTALL_DIR" "$NATIVE_INSTALL_DIR" "$PACKAGES_DIR" "$BUILD_DIR"
 }
 
 basic_setup
@@ -49,14 +50,15 @@ configure_for_package() {
     fi
     # Defaults for package unless overridden:
     PACKAGE_NAME=$package
-    PACKAGE_TYPE=fetch
+    PACKAGE_SOURCE_TYPE=fetch
+    PACKAGE_TYPE=target
     PACKAGE_CONFIGURE_OPTS=""
     DEPENDENCIES=""
     GIT_BRANCH=master
     . "$pkg_file"
 
     # After reading the package file, configure a few more variables:
-    case "$PACKAGE_TYPE" in
+    case "$PACKAGE_SOURCE_TYPE" in
         fetch)
             PACKAGE_FILENAME="$PACKAGE_NAME-$PACKAGE_VERSION.tar.gz"
             PACKAGE_BUILD_DIR="$BUILD_DIR/$PACKAGE_NAME-$PACKAGE_VERSION"
@@ -65,9 +67,28 @@ configure_for_package() {
             PACKAGE_BUILD_DIR="$BUILD_DIR/$PACKAGE_NAME"
             ;;
         *)
+            error_exit "Unknown package source type $PACKAGE_SOURCE_TYPE"
+            ;;
+    esac
+
+    # We set up build differently depending on the package type: some packages
+    # are for the target we're building for; others are native tools to run on
+    # the build machine as part of the build process.
+    case "$PACKAGE_TYPE" in
+        target)
+            PACKAGE_INSTALL_DIR="$INSTALL_DIR"
+            ;;
+        native)
+            PACKAGE_INSTALL_DIR="$NATIVE_INSTALL_DIR"
+            ;;
+        *)
             error_exit "Unknown package type $PACKAGE_TYPE"
             ;;
     esac
+
+    # We must set PKG_CONFIG_PATH now so we know where to look for packages.
+    PKG_CONFIG_PATH="$PACKAGE_INSTALL_DIR/lib/pkgconfig:${PKG_CONFIG_PATH:-}"
+    export PKG_CONFIG_PATH
 }
 
 download_package_file() {
@@ -90,7 +111,7 @@ extract_package_file() {
 }
 
 fetch_package() {
-    case "$PACKAGE_TYPE" in
+    case "$PACKAGE_SOURCE_TYPE" in
         fetch)
             download_package_file
             extract_package_file
@@ -104,12 +125,19 @@ fetch_package() {
 }
 
 setup_build_environment() {
-    . "$CHOCPKG_ROOT/buildenv.sh"
+    if [ "$PACKAGE_TYPE" = "target" ]; then
+        . "$CHOCPKG_ROOT/buildenv.sh"
+    fi
 
-    CPPFLAGS="-I$INSTALL_DIR/include"
-    LDFLAGS="-L$INSTALL_DIR/lib ${LDFLAGS:-}"
+    CPPFLAGS="-I$PACKAGE_INSTALL_DIR/include"
+    LDFLAGS="-L$PACKAGE_INSTALL_DIR/lib ${LDFLAGS:-}"
+    export CPPFLAGS LDFLAGS
+
+    # ACLOCAL_PATH is a special case: we include the aclocal paths from both
+    # target and native, so that it is possible to get the pkg-config macros.
     ACLOCAL_PATH="$INSTALL_DIR/share/aclocal:${ACLOCAL_PATH:-}"
-    export CPPFLAGS LDFLAGS ACLOCAL_PATH
+    ACLOCAL_PATH="$NATIVE_INSTALL_DIR/share/aclocal:$ACLOCAL_PATH"
+    export ACLOCAL_PATH
 }
 
 build_package() {
@@ -123,13 +151,14 @@ build_package() {
     echo =======================================================
     echo
     cd "$PACKAGE_BUILD_DIR"
+
     setup_build_environment
 
     if ! prebuild_setup; then
         error_exit "Failed pre-build setup step for $PACKAGE_NAME."
     fi
 
-    ./configure --prefix="$INSTALL_DIR" $PACKAGE_CONFIGURE_OPTS || (
+    ./configure --prefix="$PACKAGE_INSTALL_DIR" $PACKAGE_CONFIGURE_OPTS || (
         error_exit "Failed to configure package $PACKAGE_NAME for build."
     )
 

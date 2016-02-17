@@ -20,5 +20,5 @@ exit -1
 esac
 
 # Set up various environment variables:
-PATH="$CHOCPKG_ROOT/chocpkg:$CHOCPKG_ROOT/install/bin:$PATH"
+PATH="$CHOCPKG_ROOT/chocpkg:$CHOCPKG_ROOT/install.native/bin:$PATH"
 
