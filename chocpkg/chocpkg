@@ -104,26 +104,15 @@ fetch_package() {
 }
 
 setup_build_environment() {
-    CPPFLAGS="-I$INSTALL_DIR/include -I$INSTALL_DIR/include/SDL"
-    LDFLAGS="-L$INSTALL_DIR/lib $LDFLAGS"
-    ACLOCAL_PATH="$INSTALL_DIR/share/aclocal:$ACLOCAL_PATH"
-    export CPPFLAGS LDFLAGS ACLOCAL_PATH
+    . "$CHOCPKG_ROOT/buildenv.sh"
 
-    if [ $(uname) = "Darwin" ]; then
-        CC="gcc -m32"
-        CXX="g++ -m32"
-        LDFLAGS="-lobjc $LDFLAGS"
-        MACOSX_DEPLOYMENT_TARGET=10.5
-        export CC CXX MACOSX_DEPLOYMENT_TARGET
-    else
-        LDFLAGS="-Wl,-rpath -Wl,$INSTALL_DIR/lib $LDFLAGS"
-    fi
+    CPPFLAGS="-I$INSTALL_DIR/include"
+    LDFLAGS="-L$INSTALL_DIR/lib ${LDFLAGS:-}"
+    ACLOCAL_PATH="$INSTALL_DIR/share/aclocal:${ACLOCAL_PATH:-}"
+    export CPPFLAGS LDFLAGS ACLOCAL_PATH
 }
 
 build_package() {
-    if [ "$PACKAGE_NAME" != "pkg-config" ]; then
-        chocpkg install pkg-config
-    fi
     for dep in $DEPENDENCIES; do
         chocpkg install "$dep"
     done
@@ -134,6 +123,7 @@ build_package() {
     echo =======================================================
     echo
     cd "$PACKAGE_BUILD_DIR"
+    setup_build_environment
 
     if ! prebuild_setup; then
         error_exit "Failed pre-build setup step for $PACKAGE_NAME."
