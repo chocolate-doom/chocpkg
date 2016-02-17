@@ -1,0 +1,187 @@
+#!/bin/bash
+
+set -eu
+
+basic_setup() {
+    if [ "${CHOCPKG_ROOT:-}" = "" ]; then
+        echo "CHOCPKG_ROOT not configured - please source setup.sh." \
+            >> /dev/stderr
+        exit -1
+    fi
+    INSTALL_DIR="$CHOCPKG_ROOT/install"
+    PACKAGES_DIR="$CHOCPKG_ROOT/packages"
+    BUILD_DIR="$CHOCPKG_ROOT/build"
+    mkdir -p "$INSTALL_DIR" "$PACKAGES_DIR" "$BUILD_DIR"
+}
+
+basic_setup
+
+. chocpkg_functions.sh
+
+# Function that returns true if the package is installed.
+check_installed() {
+    if [ "${PACKAGE_INSTALLED_TOOL:-}" != "" ]; then
+        have_tool "$PACKAGE_INSTALLED_TOOL"
+    elif [ "${PKGCONFIG_NAME:-}" != "" ]; then
+        if ! have_tool pkg-config; then
+            error_exit "pkg-config not installed; please run:" \
+                       "    chocpkg install pkg-config"
+        fi
+        pkg-config --exists "$PKGCONFIG_NAME"
+    else
+        false
+    fi
+}
+
+# Function invoked before a package is built to set up the build environment,
+# if necessary. Can be overridden by pkgdef files.
+prebuild_setup() {
+    true
+}
+
+# Given a package name, find the pkgdef file associated with it, source
+# the contents of the file and set various variables.
+configure_for_package() {
+    local package=$1
+    local pkg_file="$CHOCPKG_ROOT/pkgdef/$package.sh"
+    if [ ! -e "$pkg_file" ]; then
+        error_exit "Package file $package.sh not found."
+    fi
+    # Defaults for package unless overridden:
+    PACKAGE_NAME=$package
+    PACKAGE_TYPE=fetch
+    PACKAGE_CONFIGURE_OPTS=""
+    DEPENDENCIES=""
+    GIT_BRANCH=master
+    . "$pkg_file"
+
+    # After reading the package file, configure a few more variables:
+    case "$PACKAGE_TYPE" in
+        fetch)
+            PACKAGE_FILENAME="$PACKAGE_NAME-$PACKAGE_VERSION.tar.gz"
+            PACKAGE_BUILD_DIR="$BUILD_DIR/$PACKAGE_NAME-$PACKAGE_VERSION"
+            ;;
+        git)
+            PACKAGE_BUILD_DIR="$BUILD_DIR/$PACKAGE_NAME"
+            ;;
+        *)
+            error_exit "Unknown package type $PACKAGE_TYPE"
+            ;;
+    esac
+}
+
+download_package_file() {
+    local dlfile="$PACKAGES_DIR/$PACKAGE_FILENAME"
+    if [ ! -e "$dlfile" ]; then
+        local tmpfile="$dlfile.part"
+        if ! chocurl "$PACKAGE_URL" > $tmpfile; then
+            error_exit "Failed to download $PACKAGE_URL"
+        fi
+        mv "$tmpfile" "$dlfile"
+    fi
+}
+
+extract_package_file() {
+    local dlfile="$PACKAGES_DIR/$PACKAGE_FILENAME"
+    (cd "$BUILD_DIR"; gunzip < "$dlfile" | tar -x) || (
+        mv "$dlfile" "$dlfile.bad"
+        error_exit "Failed to extract $PACKAGE_FILENAME: bad download?"
+    )
+}
+
+fetch_package() {
+    case "$PACKAGE_TYPE" in
+        fetch)
+            download_package_file
+            extract_package_file
+            ;;
+        git)
+            if [ ! -e "$PACKAGE_BUILD_DIR" ]; then
+                git clone -b "$GIT_BRANCH" "$GIT_URL" "$PACKAGE_BUILD_DIR"
+            fi
+            ;;
+    esac
+}
+
+setup_build_environment() {
+    CPPFLAGS="-I$INSTALL_DIR/include -I$INSTALL_DIR/include/SDL"
+    LDFLAGS="-L$INSTALL_DIR/lib $LDFLAGS"
+    ACLOCAL_PATH="$INSTALL_DIR/share/aclocal:$ACLOCAL_PATH"
+    export CPPFLAGS LDFLAGS ACLOCAL_PATH
+
+    if [ $(uname) = "Darwin" ]; then
+        CC="gcc -m32"
+        CXX="g++ -m32"
+        LDFLAGS="-lobjc $LDFLAGS"
+        MACOSX_DEPLOYMENT_TARGET=10.5
+        export CC CXX MACOSX_DEPLOYMENT_TARGET
+    else
+        LDFLAGS="-Wl,-rpath -Wl,$INSTALL_DIR/lib $LDFLAGS"
+    fi
+}
+
+build_package() {
+    if [ "$PACKAGE_NAME" != "pkg-config" ]; then
+        chocpkg install pkg-config
+    fi
+    for dep in $DEPENDENCIES; do
+        chocpkg install "$dep"
+    done
+    fetch_package "$PACKAGE_NAME"
+
+    echo =======================================================
+    echo "Building $PACKAGE_NAME..."
+    echo =======================================================
+    echo
+    cd "$PACKAGE_BUILD_DIR"
+
+    if ! prebuild_setup; then
+        error_exit "Failed pre-build setup step for $PACKAGE_NAME."
+    fi
+
+    ./configure --prefix="$INSTALL_DIR" $PACKAGE_CONFIGURE_OPTS || (
+        error_exit "Failed to configure package $PACKAGE_NAME for build."
+    )
+
+    make || (
+        error_exit "Failed to build package $PACKAGE_NAME."
+    )
+}
+
+install_package() {
+    # Already installed?
+    if check_installed; then
+        return
+    fi
+
+    build_package "$PACKAGE_NAME"
+
+    cd "$PACKAGE_BUILD_DIR"
+    make install || (
+         error_exit "Failed to install package $PACKAGE_NAME."
+    )
+}
+
+if [ $# -lt 2 ]; then
+    echo "Usage: $0 [fetch|build|install|installed] <package name>"
+    exit -1
+fi
+
+cmd=$1; package=$2
+configure_for_package "$package"
+
+case "$cmd" in
+    fetch)
+        fetch_package
+        ;;
+    build)
+        build_package
+        ;;
+    install)
+        install_package
+        ;;
+    installed)
+        check_installed
+        ;;
+esac
+
