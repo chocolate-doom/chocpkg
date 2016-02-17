@@ -167,18 +167,20 @@ build_package() {
     )
 }
 
-install_package() {
-    # Already installed?
-    if check_installed; then
-        return
-    fi
-
+reinstall_package() {
     build_package "$PACKAGE_NAME"
 
     cd "$PACKAGE_BUILD_DIR"
     make install || (
          error_exit "Failed to install package $PACKAGE_NAME."
     )
+}
+
+install_package() {
+    # Already installed? Don't install again.
+    if ! check_installed; then
+        reinstall_package
+    fi
 }
 
 if [ $# -lt 2 ]; then
@@ -195,6 +197,9 @@ case "$cmd" in
         ;;
     build)
         build_package
+        ;;
+    reinstall)
+        reinstall_package
         ;;
     install)
         install_package
