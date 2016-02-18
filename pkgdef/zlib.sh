@@ -1,0 +1,4 @@
+PACKAGE_VERSION=1.2.8
+PACKAGE_URL=http://zlib.net/zlib-${PACKAGE_VERSION}.tar.gz
+PKGCONFIG_NAME=zlib
+
