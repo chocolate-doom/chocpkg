@@ -127,6 +127,14 @@ fetch_package() {
 setup_build_environment() {
     if [ "$PACKAGE_TYPE" = "target" ]; then
         . "$CHOCPKG_ROOT/buildenv.sh"
+
+        # When cross-compiling, reconfigure pkg-config to not look for .pc
+        # files in the standard system directories; only in our own build
+        # directory. It may be that a library is installed on the system
+        # but that is useless if it is for the wrong architecture.
+        if $IS_CROSS_COMPILE; then
+            export PKG_CONFIG_LIBDIR=
+        fi
     fi
 
     CPPFLAGS="-I$PACKAGE_INSTALL_DIR/include"
@@ -158,7 +166,13 @@ build_package() {
         error_exit "Failed pre-build setup step for $PACKAGE_NAME."
     fi
 
-    ./configure --prefix="$PACKAGE_INSTALL_DIR" $PACKAGE_CONFIGURE_OPTS || (
+    local host_opt=""
+    if [ "$PACKAGE_TYPE" = "target" ] && [ "$BUILD_HOST" != "" ]; then
+        host_opt="--host=$BUILD_HOST"
+    fi
+
+    ./configure --prefix="$PACKAGE_INSTALL_DIR" $host_opt \
+                $PACKAGE_CONFIGURE_OPTS || (
         error_exit "Failed to configure package $PACKAGE_NAME for build."
     )
 
