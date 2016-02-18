@@ -11,5 +11,6 @@ fi
 # When targeting Windows, we need to install the directx headers first.
 if [ $(uname) = "Cygwin" ] || pattern_match "*mingw*" "$BUILD_HOST"; then
     DEPENDENCIES="directx-devel"
+    PACKAGE_CONFIGURE_OPTS=--disable-directx
 fi
 
