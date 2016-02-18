@@ -8,3 +8,8 @@ if [ $(uname) = "Darwin" ]; then
     PACKAGE_CONFIGURE_OPTS=--disable-video-x11
 fi
 
+# When targeting Windows, we need to install the directx headers first.
+if [ $(uname) = "Cygwin" ] || pattern_match "*mingw*" "$BUILD_HOST"; then
+    DEPENDENCIES="directx-devel"
+fi
+

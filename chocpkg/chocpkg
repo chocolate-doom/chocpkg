@@ -35,12 +35,6 @@ check_installed() {
     fi
 }
 
-# Function invoked before a package is built to set up the build environment,
-# if necessary. Can be overridden by pkgdef files.
-prebuild_setup() {
-    true
-}
-
 # Given a package name, find the pkgdef file associated with it, source
 # the contents of the file and set various variables.
 configure_for_package() {
@@ -54,6 +48,7 @@ configure_for_package() {
     PACKAGE_SOURCE_TYPE=fetch
     PACKAGE_TYPE=target
     PACKAGE_CONFIGURE_OPTS=""
+    IS_TAR_BOMB=false
     DEPENDENCIES=""
     GIT_BRANCH=master
     . "$pkg_file"
@@ -61,8 +56,11 @@ configure_for_package() {
     # After reading the package file, configure a few more variables:
     case "$PACKAGE_SOURCE_TYPE" in
         fetch)
-            PACKAGE_FILENAME="$PACKAGE_NAME-$PACKAGE_VERSION.tar.gz"
-            PACKAGE_BUILD_DIR="$BUILD_DIR/$PACKAGE_NAME-$PACKAGE_VERSION"
+            PACKAGE_FILENAME=$(basename $PACKAGE_URL)
+            PACKAGE_BUILD_DIR="$BUILD_DIR/$PACKAGE_NAME"
+            if [ "${PACKAGE_VERSION:-}" != "" ]; then
+                PACKAGE_BUILD_DIR="$PACKAGE_BUILD_DIR-$PACKAGE_VERSION"
+            fi
             ;;
         git)
             PACKAGE_BUILD_DIR="$BUILD_DIR/$PACKAGE_NAME"
@@ -113,7 +111,16 @@ download_package_file() {
 
 extract_package_file() {
     local dlfile="$PACKAGES_DIR/$PACKAGE_FILENAME"
-    (cd "$BUILD_DIR"; gunzip < "$dlfile" | tar -x) || (
+    # Well-formed tar files contain a single directory that matches their
+    # filename, but we support an override for badly-formed tar files too,
+    # where we extract everything into a directory with the expected name.
+    if $IS_TAR_BOMB; then
+        mkdir -p "$PACKAGE_BUILD_DIR"
+        cd "$PACKAGE_BUILD_DIR"
+    else
+        cd "$BUILD_DIR"
+    fi
+    (gunzip < "$dlfile" | tar -x) || (
         mv "$dlfile" "$dlfile.bad"
         error_exit "Failed to extract $PACKAGE_FILENAME: bad download?"
     )
@@ -145,20 +152,16 @@ setup_build_environment() {
     export ACLOCAL_PATH
 }
 
-build_package() {
-    for dep in $DEPENDENCIES; do
-        chocpkg install "$dep"
-    done
-    fetch_package "$PACKAGE_NAME"
+# Function invoked before a package is built to set up the build environment,
+# if necessary. Can be overridden by pkgdef files.
+prebuild_setup() {
+    true
+}
 
-    echo =======================================================
-    echo "Building $PACKAGE_NAME..."
-    echo =======================================================
-    echo
-    cd "$PACKAGE_BUILD_DIR"
-
-    setup_build_environment
-
+# This function encapsulates the "./configure; make" process that does the
+# actual build of the package. This should work for most autotools-based
+# packages but the intention is that this can be overrriden by packages.
+do_build() {
     if ! prebuild_setup; then
         error_exit "Failed pre-build setup step for $PACKAGE_NAME."
     fi
@@ -178,13 +181,34 @@ build_package() {
     )
 }
 
-reinstall_package() {
-    build_package "$PACKAGE_NAME"
+build_package() {
+    for dep in $DEPENDENCIES; do
+        chocpkg install "$dep"
+    done
+    fetch_package "$PACKAGE_NAME"
 
+    echo =======================================================
+    echo "Building $PACKAGE_NAME..."
+    echo =======================================================
+    echo
     cd "$PACKAGE_BUILD_DIR"
+
+    setup_build_environment
+    do_build
+}
+
+# Function encapsulating the "make install" step which should work for
+# most autotools-based packages, but can be overridden by packages.
+do_install() {
     make install || (
          error_exit "Failed to install package $PACKAGE_NAME."
     )
+}
+
+reinstall_package() {
+    build_package "$PACKAGE_NAME"
+    cd "$PACKAGE_BUILD_DIR"
+    do_install
 }
 
 install_package() {
