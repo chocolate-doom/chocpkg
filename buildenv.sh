@@ -4,7 +4,7 @@
 BUILD_HOST=
 
 # An example of how to cross-compile to mingw32 for Windows builds:
-#BUILD_HOST=i586-mingw32msvc
+#BUILD_HOST=i686-w64-mingw32
 
 # If we're cross-compiling to a different platform, this should be set
 # to true. We initialize this based on whether BUILD_HOST has been set.
