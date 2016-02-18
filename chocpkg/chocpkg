@@ -45,7 +45,6 @@ configure_for_package() {
     fi
     # Defaults for package unless overridden:
     PACKAGE_NAME=$package
-    PACKAGE_SOURCE_TYPE=fetch
     PACKAGE_TYPE=target
     PACKAGE_CONFIGURE_OPTS=""
     IS_TAR_BOMB=false
@@ -53,22 +52,21 @@ configure_for_package() {
     GIT_BRANCH=master
     . "$pkg_file"
 
-    # After reading the package file, configure a few more variables:
-    case "$PACKAGE_SOURCE_TYPE" in
-        fetch)
-            PACKAGE_FILENAME=$(basename $PACKAGE_URL)
-            PACKAGE_BUILD_DIR="$BUILD_DIR/$PACKAGE_NAME"
-            if [ "${PACKAGE_VERSION:-}" != "" ]; then
-                PACKAGE_BUILD_DIR="$PACKAGE_BUILD_DIR-$PACKAGE_VERSION"
-            fi
-            ;;
-        git)
-            PACKAGE_BUILD_DIR="$BUILD_DIR/$PACKAGE_NAME"
-            ;;
-        *)
-            error_exit "Unknown package source type $PACKAGE_SOURCE_TYPE"
-            ;;
-    esac
+    # Set the value of PACKAGE_SOURCE_TYPE, based on which variables are set by
+    # the package file.
+    if [ "${PACKAGE_URL:-}" != "" ]; then
+        PACKAGE_FILENAME=$(basename $PACKAGE_URL)
+        PACKAGE_SOURCE_TYPE=fetch
+    elif [ "${GIT_URL:-}" != "" ]; then
+        PACKAGE_SOURCE_TYPE=git
+    else
+        error_exit "Unknown package type; neither PACKAGE_URL nor GIT_URL set."
+    fi
+
+    PACKAGE_BUILD_DIR="$BUILD_DIR/$PACKAGE_NAME"
+    if [ "${PACKAGE_VERSION:-}" != "" ]; then
+        PACKAGE_BUILD_DIR="$PACKAGE_BUILD_DIR-$PACKAGE_VERSION"
+    fi
 
     # We set up build differently depending on the package type: some packages
     # are for the target we're building for; others are native tools to run on

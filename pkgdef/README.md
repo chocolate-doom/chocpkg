@@ -8,17 +8,12 @@ variables to describe how to build the package.
   part of the build process. The package type determines whether the
   result is installed into `install` or `install.native`.
 
-* `PACKAGE_SOURCE_TYPE`: has a value of either `fetch` or `git`. If the
-  value is `fetch`, a tar file is downloaded from the URL in
-  `PACKAGE_URL`. If the value is `git`, a git repository is cloned from
-  the URL in `GIT_URL`.
-
 * `PACKAGE_VERSION`: version number of the package. If set, this is
   appended to the package name (ie. filename) to make the expected build
   directory name.
 
-* `PACKAGE_URL`: URL to download a tar.gz file from when the `PACKAGE_TYPE`
-  is `fetch`.
+* `PACKAGE_URL`: URL specifying where to download a tar.gz file containing
+  the package to build.
 
 * `IS_TAR_BOMB`: "Well-formed" .tar files contain a single directory,
   the name of which matches the name of the .tar file. Files which are
@@ -30,7 +25,7 @@ variables to describe how to build the package.
 * `GIT_URL`: URL to `git clone` this package from.
 
 * `GIT_BRANCH`: The Git branch to clone and build from the remote
-  repository. Defaults to `master`.
+  repository. Defaults is `master`.
 
 * `PACKAGE_INSTALLED_TOOL`: name of the tool that is built and installed
   by this package. If this variable is set, the tool name is used to
