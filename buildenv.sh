@@ -14,6 +14,12 @@ else
   IS_CROSS_COMPILE=false
 fi
 
+# Extra arguments we pass to make when building.
+MAKE_OPTS=
+
+# Uncomment to use more threads for faster builds.
+#MAKE_OPTS=-j4
+
 # On OS X, we must set additional options: build 32-bit binaries, and the
 # target API version.
 if [ $(uname) = "Darwin" ]; then

@@ -176,7 +176,7 @@ do_build() {
         error_exit "Failed to configure package $PACKAGE_NAME for build."
     )
 
-    make || (
+    make $MAKE_OPTS || (
         error_exit "Failed to build package $PACKAGE_NAME."
     )
 }
