@@ -4,6 +4,6 @@ GIT_BRANCH=sdl2-branch
 DEPENDENCIES="SDL2 SDL2_mixer SDL2_net"
 
 prebuild_setup() {
-    bash ./autogen.sh
+    autoreconf -fi
 }
 
