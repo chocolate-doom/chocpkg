@@ -59,6 +59,9 @@ configure_for_package() {
         PACKAGE_SOURCE_TYPE=fetch
     elif [ "${GIT_URL:-}" != "" ]; then
         PACKAGE_SOURCE_TYPE=git
+    elif [ "${DEPENDENCIES:-}" != "" ]; then
+        PACKAGE_SOURCE_TYPE=package-group
+        PACKAGE_TYPE=target  # it doesn't matter
     else
         error_exit "Unknown package type; neither PACKAGE_URL nor GIT_URL set."
     fi
@@ -135,6 +138,9 @@ fetch_package() {
                 git clone -b "$GIT_BRANCH" "$GIT_URL" "$PACKAGE_BUILD_DIR"
             fi
             ;;
+        package-group)
+            error_exit "Can't fetch a package group, only install it."
+            ;;
     esac
 }
 
@@ -179,10 +185,17 @@ do_build() {
     )
 }
 
-build_package() {
+install_dependencies() {
     for dep in $DEPENDENCIES; do
         chocpkg install "$dep"
     done
+}
+
+build_package() {
+    if [ "$PACKAGE_SOURCE_TYPE" = "package-group" ]; then
+        error_exit "Can't build a package group, only install it."
+    fi
+    install_dependencies
     fetch_package "$PACKAGE_NAME"
 
     echo =======================================================
@@ -204,6 +217,11 @@ do_install() {
 }
 
 reinstall_package() {
+    if [ "$PACKAGE_SOURCE_TYPE" = "package-group" ]; then
+        install_dependencies
+        return
+    fi
+
     build_package "$PACKAGE_NAME"
     cd "$PACKAGE_BUILD_DIR"
     do_install
