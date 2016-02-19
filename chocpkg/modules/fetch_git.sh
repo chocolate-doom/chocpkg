@@ -9,6 +9,11 @@ fetch_git::init() {
 }
 
 do_fetch() {
-    git clone -b "$GIT_BRANCH" "$GIT_URL" "$PACKAGE_BUILD_DIR"
+    if [ -e "$PACKAGE_BUILD_DIR/.git" ]; then
+        cd "$PACKAGE_BUILD_DIR"
+        git pull
+    else
+        git clone -b "$GIT_BRANCH" "$GIT_URL" "$PACKAGE_BUILD_DIR"
+    fi
 }
 
