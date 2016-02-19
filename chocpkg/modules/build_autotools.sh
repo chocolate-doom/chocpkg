@@ -12,6 +12,12 @@ do_build() {
         host_opt="--host=$BUILD_HOST"
     fi
 
+    # If we're checking out from a version control repository, we may need
+    # to run the autotools commands first to generate the configure script.
+    if [ ! -e configure ] && ([ -e configure.ac ] || [ -e configure.in ]); then
+        autoreconf -fi
+    fi
+
     ./configure --prefix="$PACKAGE_INSTALL_DIR" $host_opt \
                 $PACKAGE_CONFIGURE_OPTS || (
         error_exit "Failed to configure package $PACKAGE_NAME for build."
