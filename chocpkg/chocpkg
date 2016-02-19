@@ -18,21 +18,11 @@ basic_setup() {
 basic_setup
 
 . chocpkg_functions.sh
+. chocpkg_modules.sh
 . "$CHOCPKG_ROOT/buildenv.sh"
 
-# Function that returns true if the package is installed.
-check_installed() {
-    if [ "${PACKAGE_INSTALLED_TOOL:-}" != "" ]; then
-        have_tool "$PACKAGE_INSTALLED_TOOL"
-    elif [ "${PKGCONFIG_NAME:-}" != "" ]; then
-        if ! have_tool pkg-config; then
-            error_exit "pkg-config not installed; please run:" \
-                       "    chocpkg install pkg-config"
-        fi
-        pkg-config --exists "$PKGCONFIG_NAME"
-    else
-        false
-    fi
+dependencies() {
+    DEPENDENCIES="$*"
 }
 
 # Given a package name, find the pkgdef file associated with it, source
@@ -46,25 +36,8 @@ configure_for_package() {
     # Defaults for package unless overridden:
     PACKAGE_NAME=$package
     PACKAGE_TYPE=target
-    PACKAGE_CONFIGURE_OPTS=""
-    IS_TAR_BOMB=false
     DEPENDENCIES=""
-    GIT_BRANCH=master
     . "$pkg_file"
-
-    # Set the value of PACKAGE_SOURCE_TYPE, based on which variables are set by
-    # the package file.
-    if [ "${PACKAGE_URL:-}" != "" ]; then
-        PACKAGE_FILENAME=$(basename $PACKAGE_URL)
-        PACKAGE_SOURCE_TYPE=fetch
-    elif [ "${GIT_URL:-}" != "" ]; then
-        PACKAGE_SOURCE_TYPE=git
-    elif [ "${DEPENDENCIES:-}" != "" ]; then
-        PACKAGE_SOURCE_TYPE=package-group
-        PACKAGE_TYPE=target  # it doesn't matter
-    else
-        error_exit "Unknown package type; neither PACKAGE_URL nor GIT_URL set."
-    fi
 
     PACKAGE_BUILD_DIR="$BUILD_DIR/$PACKAGE_NAME"
     if [ "${PACKAGE_VERSION:-}" != "" ]; then
@@ -99,49 +72,8 @@ configure_for_package() {
     fi
 }
 
-download_package_file() {
-    local dlfile="$PACKAGES_DIR/$PACKAGE_FILENAME"
-    if [ ! -e "$dlfile" ]; then
-        local tmpfile="$dlfile.part"
-        if ! chocurl "$PACKAGE_URL" > $tmpfile; then
-            error_exit "Failed to download $PACKAGE_URL"
-        fi
-        mv "$tmpfile" "$dlfile"
-    fi
-}
-
-extract_package_file() {
-    local dlfile="$PACKAGES_DIR/$PACKAGE_FILENAME"
-    # Well-formed tar files contain a single directory that matches their
-    # filename, but we support an override for badly-formed tar files too,
-    # where we extract everything into a directory with the expected name.
-    if $IS_TAR_BOMB; then
-        mkdir -p "$PACKAGE_BUILD_DIR"
-        cd "$PACKAGE_BUILD_DIR"
-    else
-        cd "$BUILD_DIR"
-    fi
-    (gunzip < "$dlfile" | tar -x) || (
-        mv "$dlfile" "$dlfile.bad"
-        error_exit "Failed to extract $PACKAGE_FILENAME: bad download?"
-    )
-}
-
 fetch_package() {
-    case "$PACKAGE_SOURCE_TYPE" in
-        fetch)
-            download_package_file
-            extract_package_file
-            ;;
-        git)
-            if [ ! -e "$PACKAGE_BUILD_DIR" ]; then
-                git clone -b "$GIT_BRANCH" "$GIT_URL" "$PACKAGE_BUILD_DIR"
-            fi
-            ;;
-        package-group)
-            error_exit "Can't fetch a package group, only install it."
-            ;;
-    esac
+    do_fetch
 }
 
 setup_build_environment() {
@@ -156,45 +88,19 @@ setup_build_environment() {
     export ACLOCAL_PATH
 }
 
-# Function invoked before a package is built to set up the build environment,
-# if necessary. Can be overridden by pkgdef files.
-prebuild_setup() {
-    true
-}
-
-# This function encapsulates the "./configure; make" process that does the
-# actual build of the package. This should work for most autotools-based
-# packages but the intention is that this can be overrriden by packages.
-do_build() {
-    if ! prebuild_setup; then
-        error_exit "Failed pre-build setup step for $PACKAGE_NAME."
-    fi
-
-    local host_opt=""
-    if [ "$PACKAGE_TYPE" = "target" ] && [ "$BUILD_HOST" != "" ]; then
-        host_opt="--host=$BUILD_HOST"
-    fi
-
-    ./configure --prefix="$PACKAGE_INSTALL_DIR" $host_opt \
-                $PACKAGE_CONFIGURE_OPTS || (
-        error_exit "Failed to configure package $PACKAGE_NAME for build."
-    )
-
-    make $MAKE_OPTS || (
-        error_exit "Failed to build package $PACKAGE_NAME."
-    )
-}
-
 install_dependencies() {
     for dep in $DEPENDENCIES; do
         chocpkg install "$dep"
     done
 }
 
+# Function invoked before a package is built to set up the build environment,
+# if necessary. Can be overridden by pkgdef files.
+prebuild_setup() {
+    true
+}
+
 build_package() {
-    if [ "$PACKAGE_SOURCE_TYPE" = "package-group" ]; then
-        error_exit "Can't build a package group, only install it."
-    fi
     install_dependencies
     fetch_package "$PACKAGE_NAME"
 
@@ -205,23 +111,15 @@ build_package() {
     cd "$PACKAGE_BUILD_DIR"
 
     setup_build_environment
+
+    if ! prebuild_setup; then
+        error_exit "Failed pre-build setup step for $PACKAGE_NAME."
+    fi
+
     do_build
 }
 
-# Function encapsulating the "make install" step which should work for
-# most autotools-based packages, but can be overridden by packages.
-do_install() {
-    make install || (
-         error_exit "Failed to install package $PACKAGE_NAME."
-    )
-}
-
 reinstall_package() {
-    if [ "$PACKAGE_SOURCE_TYPE" = "package-group" ]; then
-        install_dependencies
-        return
-    fi
-
     build_package "$PACKAGE_NAME"
     cd "$PACKAGE_BUILD_DIR"
     do_install

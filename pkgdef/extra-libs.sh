@@ -1,7 +1,3 @@
 # Optional libraries which can be used by Chocolate Doom.
-DEPENDENCIES="
-flac
-libpng
-libsamplerate
-libvorbis
-"
+package_group flac libpng libsamplerate libvorbis
+

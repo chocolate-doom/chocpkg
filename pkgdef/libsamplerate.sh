@@ -1,4 +1,6 @@
 PACKAGE_VERSION=0.1.8
-PACKAGE_URL=http://www.chocolate-doom.org/depends/${PACKAGE_NAME}-${PACKAGE_VERSION}.tar.gz
-PKGCONFIG_NAME=samplerate
+
+check_pkgconfig samplerate
+fetch_download http://www.chocolate-doom.org/depends/${PACKAGE_NAME}-${PACKAGE_VERSION}.tar.gz
+build_autotools
 

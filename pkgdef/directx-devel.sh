@@ -1,4 +1,5 @@
-PACKAGE_URL=https://www.libsdl.org/extras/win32/common/directx-devel.tar.gz
+
+fetch_download https://www.libsdl.org/extras/win32/common/directx-devel.tar.gz
 IS_TAR_BOMB=true
 
 do_build() {
