@@ -2,16 +2,42 @@
 
 set -eu
 
+# set_chocpkg_root sets the CHOCPKG_ROOT environment variable based on the
+# path where the script is located.
+set_chocpkg_root() {
+    # Assume that the package root is one directory up from the script.
+    local script_path=$(realpath "$0")
+    local script_dir=$(dirname "$script_path")
+    CHOCPKG_ROOT=$(dirname "$script_dir")
+
+    # Build directory must not contain a space, or bad things happen:
+    case "$CHOCPKG_ROOT" in
+    *\ *)
+        cat <<END
+        The build scripts are in a path containing a space:
+
+            $CHOCPKG_ROOT
+
+        Builds will probably fail - try moving the build scripts to a
+        different directory not containing a space.
+END
+        exit 1
+    esac
+}
+
+# basic_setup is invoked on script startup to set various environment variables
+# and create basic directories used throughout the rest of the script.
 basic_setup() {
-    if [ "${CHOCPKG_ROOT:-}" = "" ]; then
-        echo "CHOCPKG_ROOT not configured - please source setup.sh." \
-            >> /dev/stderr
-        exit -1
+    if [ -z "${CHOCPKG_ROOT:-}" ]; then
+        set_chocpkg_root
+        PATH="$CHOCPKG_ROOT/chocpkg:$CHOCPKG_ROOT/install.native/bin:$PATH"
     fi
+
     INSTALL_DIR="$CHOCPKG_ROOT/install"
     NATIVE_INSTALL_DIR="$CHOCPKG_ROOT/install.native"
     PACKAGES_DIR="$CHOCPKG_ROOT/packages"
     BUILD_DIR="$CHOCPKG_ROOT/build"
+
     mkdir -p "$INSTALL_DIR" "$NATIVE_INSTALL_DIR" "$PACKAGES_DIR" "$BUILD_DIR"
 }
 
