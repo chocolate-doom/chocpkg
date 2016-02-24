@@ -1,5 +1,6 @@
 PACKAGE_VERSION=2.0.1
 
+dependencies SDL2
 check_pkgconfig SDL2_mixer
 fetch_download http://www.libsdl.org/projects/SDL_mixer/release/${PACKAGE_NAME}-${PACKAGE_VERSION}.tar.gz
 
