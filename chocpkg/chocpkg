@@ -6,7 +6,11 @@ set -eu
 # path where the script is located.
 set_chocpkg_root() {
     # Assume that the package root is one directory up from the script.
-    local script_path=$(realpath "$0")
+    if [[ $0 = /* ]]; then
+        local script_path="$0"
+    else
+        local script_path="$PWD/${0#./}"
+    fi
     local script_dir=$(dirname "$script_path")
     CHOCPKG_ROOT=$(dirname "$script_dir")
 
