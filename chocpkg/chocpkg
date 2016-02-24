@@ -55,23 +55,6 @@ dependencies() {
     DEPENDENCIES+="$*"
 }
 
-# set_pkgconfig_paths sets the values of the PKG_CONFIG_PATH and
-# PKG_CONFIG_LIBDIR environment variables. This is deliberately only done
-# when needed, as otherwise the value could affect child builds when
-# recursing to build dependent packages.
-set_pkgconfig_paths() {
-    PKG_CONFIG_PATH="$PACKAGE_INSTALL_DIR/lib/pkgconfig:${PKG_CONFIG_PATH:-}"
-    export PKG_CONFIG_PATH
-
-    # When cross-compiling, reconfigure pkg-config to not look for .pc
-    # files in the standard system directories; only in our own build
-    # directory. It may be that a library is installed on the system
-    # but that is useless if it is for the wrong architecture.
-    if $IS_CROSS_COMPILE && [ "$PACKAGE_TYPE" = "target" ]; then
-        export PKG_CONFIG_LIBDIR=
-    fi
-}
-
 # Given a package name, find the pkgdef file associated with it, source
 # the contents of the file and set various variables.
 configure_for_package() {
@@ -107,15 +90,9 @@ configure_for_package() {
     esac
 }
 
-cmd_installed() {
-    set_pkgconfig_paths
-    check_installed
-}
-
-cmd_fetch() {
-    do_fetch
-}
-
+# setup_build_environment sets environment variables for build. This is
+# deliberately only done when needed, as otherwise the value could affect
+# child builds when recursing to build dependent packages.
 setup_build_environment() {
     CPPFLAGS="-I$PACKAGE_INSTALL_DIR/include"
     LDFLAGS="-L$PACKAGE_INSTALL_DIR/lib ${LDFLAGS:-}"
@@ -126,12 +103,33 @@ setup_build_environment() {
     ACLOCAL_PATH="$INSTALL_DIR/share/aclocal:${ACLOCAL_PATH:-}"
     ACLOCAL_PATH="$NATIVE_INSTALL_DIR/share/aclocal:$ACLOCAL_PATH"
     export ACLOCAL_PATH
+
+    # We need to find where to look for pkg-config .pc files:
+    PKG_CONFIG_PATH="$PACKAGE_INSTALL_DIR/lib/pkgconfig:${PKG_CONFIG_PATH:-}"
+    export PKG_CONFIG_PATH
+
+    # When cross-compiling, reconfigure pkg-config to not look for .pc
+    # files in the standard system directories; only in our own build
+    # directory. It may be that a library is installed on the system
+    # but that is useless if it is for the wrong architecture.
+    if $IS_CROSS_COMPILE && [ "$PACKAGE_TYPE" = "target" ]; then
+        export PKG_CONFIG_LIBDIR=
+    fi
 }
 
 install_dependencies() {
     for dep in $DEPENDENCIES; do
         chocpkg install "$dep"
     done
+}
+
+cmd_installed() {
+    setup_build_environment
+    check_installed
+}
+
+cmd_fetch() {
+    do_fetch
 }
 
 # Function invoked before a package is built to set up the build environment,
@@ -141,7 +139,6 @@ prebuild_setup() {
 }
 
 cmd_build() {
-    set_pkgconfig_paths
     install_dependencies
     chocpkg fetch "$PACKAGE_NAME"
 
