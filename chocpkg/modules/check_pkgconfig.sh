@@ -1,6 +1,10 @@
 
 check_pkgconfig::init() {
     PKGCONFIG_NAME=$1
+
+    # If we're using pkg-config to check, we need to install pkg-config
+    # first.
+    dependencies pkg-config
 }
 
 # Function that returns true if the package is installed.
