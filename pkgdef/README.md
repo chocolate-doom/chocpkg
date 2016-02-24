@@ -104,10 +104,6 @@ package_group neato-lib dumbo-lib
   part of the build process. The package type determines whether the
   result is installed into `install` or `install.native`.
 
-* `PACKAGE_VERSION`: version number of the package. If set, this is
-  appended to the package name (ie. filename) to make the expected build
-  directory name.
-
 ## Advanced builds
 
 Complicated packages can require custom build steps. The following functions

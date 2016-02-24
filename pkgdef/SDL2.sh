@@ -1,8 +1,6 @@
 
-PACKAGE_VERSION=2.0.4
-
 check_pkgconfig sdl2
-fetch_download http://www.libsdl.org/release/${PACKAGE_NAME}-${PACKAGE_VERSION}.tar.gz
+fetch_download http://www.libsdl.org/release/SDL2-2.0.4.tar.gz
 
 config_options=
 

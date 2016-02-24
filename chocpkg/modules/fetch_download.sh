@@ -2,6 +2,7 @@
 fetch_download::init() {
     PACKAGE_URL=$1
     PACKAGE_FILENAME=$(basename "$PACKAGE_URL")
+    PACKAGE_DIR_NAME="${PACKAGE_FILENAME/.tar.gz/}"
     IS_TAR_BOMB=false
 }
 

@@ -65,14 +65,12 @@ configure_for_package() {
     fi
     # Defaults for package unless overridden:
     PACKAGE_NAME=$package
+    PACKAGE_DIR_NAME=$package
     PACKAGE_TYPE=target
     DEPENDENCIES=""
     . "$pkg_file"
 
-    PACKAGE_BUILD_DIR="$BUILD_DIR/$PACKAGE_NAME"
-    if [ "${PACKAGE_VERSION:-}" != "" ]; then
-        PACKAGE_BUILD_DIR="$PACKAGE_BUILD_DIR-$PACKAGE_VERSION"
-    fi
+    PACKAGE_BUILD_DIR="$BUILD_DIR/$PACKAGE_DIR_NAME"
 
     # We set up build differently depending on the package type: some packages
     # are for the target we're building for; others are native tools to run on

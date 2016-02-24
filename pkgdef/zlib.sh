@@ -1,7 +1,5 @@
-PACKAGE_VERSION=1.2.8
-
 check_pkgconfig zlib
-fetch_download http://zlib.net/zlib-${PACKAGE_VERSION}.tar.gz
+fetch_download http://zlib.net/zlib-1.2.8.tar.gz
 build_autotools
 
 # zlib's configure script is hand-rolled and doesn't support the normal
