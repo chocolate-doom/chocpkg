@@ -18,19 +18,19 @@ do_build() {
     error_exit "Can't build a package group, only install it."
 }
 
-# We override the usual reinstall_package/install_package functions, which
+# We override the command functions for the install/reinstall commands, which
 # is a bit unusual, but we don't want to do the usual things (build etc.):
 
 # Installing a package group means installing all its packages; we don't
 # trigger the build step like 'install' usually does (we don't have one).
-install_package() {
+cmd_install() {
     for package in $PKGGRP_PACKAGES; do
         chocpkg install "$package"
     done
 }
 
 # Reinstalling a package group means reinstalling *all* its packages.
-reinstall_package() {
+cmd_reinstall() {
     for package in $PKGGRP_PACKAGES; do
         chocpkg reinstall "$package"
     done
