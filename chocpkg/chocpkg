@@ -52,7 +52,7 @@ basic_setup
 . "$CHOCPKG_ROOT/buildenv.sh"
 
 dependencies() {
-    DEPENDENCIES+="$*"
+    DEPENDENCIES+=" $*"
 }
 
 # Given a package name, find the pkgdef file associated with it, source
