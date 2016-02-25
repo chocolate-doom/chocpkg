@@ -6,7 +6,7 @@ set -eu
 # path where the script is located.
 set_chocpkg_root() {
     # Assume that the package root is one directory up from the script.
-    if [[ $0 = /* ]]; then
+    if [[ "$0" = /* ]]; then
         local script_path="$0"
     else
         local script_path="$PWD/${0#./}"
@@ -15,8 +15,7 @@ set_chocpkg_root() {
     CHOCPKG_ROOT=$(dirname "$script_dir")
 
     # Build directory must not contain a space, or bad things happen:
-    case "$CHOCPKG_ROOT" in
-    *\ *)
+    if [[ "$CHOCPKG_ROOT" = *\ * ]]; then
         cat <<END
         The build scripts are in a path containing a space:
 
@@ -26,7 +25,7 @@ set_chocpkg_root() {
         different directory not containing a space.
 END
         exit 1
-    esac
+    fi
 }
 
 # basic_setup is invoked on script startup to set various environment variables
