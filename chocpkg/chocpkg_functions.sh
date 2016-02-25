@@ -1,18 +1,3 @@
-
-# Check if the specified string matches the glob pattern.
-pattern_match() {
-    pattern="$1"
-
-    case "$2" in
-        $pattern)
-            true
-            ;;
-        *)
-            false
-            ;;
-    esac
-}
-
 # Determine if a given program is in the PATH.
 have_tool() {
     tool=$1

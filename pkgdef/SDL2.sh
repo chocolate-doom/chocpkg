@@ -11,7 +11,7 @@ if [ $(uname) = "Darwin" ]; then
 fi
 
 # When targeting Windows, we need to install the directx headers first.
-if [ $(uname) = "Cygwin" ] || pattern_match "*mingw*" "$BUILD_HOST"; then
+if [ $(uname) = "Cygwin" ] || [[ "$BUILD_HOST" = *mingw* ]]; then
     DEPENDENCIES="directx-devel"
     config_options+=" --disable-directx"
 fi
