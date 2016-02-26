@@ -1,13 +1,7 @@
 
 package_group::init() {
+    PACKAGE_TYPE=package-group
     PKGGRP_PACKAGES="$*"
-}
-
-# Package group is installed if all its packages are installed.
-check_installed() {
-    for package in $PKGGRP_PACKAGES; do
-        chocpkg installed "$package"
-    done
 }
 
 do_fetch() {
@@ -41,5 +35,12 @@ cmd_dependencies() {
         echo "$package"
         chocpkg dependencies "$package"
     done | sort | uniq
+}
+
+# Package group is installed if all its packages are installed.
+cmd_installed() {
+    for package in $PKGGRP_PACKAGES; do
+        chocpkg installed "$package"
+    done
 }
 

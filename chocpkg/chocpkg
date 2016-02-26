@@ -86,6 +86,8 @@ configure_for_package() {
         native)
             PACKAGE_INSTALL_DIR="$NATIVE_INSTALL_DIR"
             ;;
+        package-group)
+            ;;
         *)
             error_exit "Unknown package type $PACKAGE_TYPE"
             ;;
