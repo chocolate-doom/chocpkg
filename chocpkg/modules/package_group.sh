@@ -36,3 +36,10 @@ cmd_reinstall() {
     done
 }
 
+cmd_dependencies() {
+    for package in $PKGGRP_PACKAGES; do
+        echo "$package"
+        chocpkg dependencies "$package"
+    done | sort | uniq
+}
+

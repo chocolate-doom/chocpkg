@@ -172,29 +172,117 @@ cmd_install() {
     fi
 }
 
-if [ $# -lt 2 ]; then
-    echo "Usage: $0 [fetch|build|install|installed] <package name>"
-    exit -1
-fi
+cmd_packages() {
+    for sh_file in $CHOCPKG_ROOT/pkgdef/*.sh; do
+        basename "${sh_file/%.sh/}"
+    done
+}
 
-cmd=$1; package=$2
-configure_for_package "$package"
+cmd_info() {
+    # If a specific package name is not provided, list info on
+    # all packages.
+    if [ $# -lt 2 ]; then
+        for package in $(chocpkg packages); do
+            chocpkg info "$package"
+            echo
+        done
+        exit 0
+    fi
 
-case "$cmd" in
-    installed)
-        cmd_installed
+    configure_for_package "$2"
+    printf "package: %s\n" "$PACKAGE_NAME"
+    printf "description: %s\n" "$PACKAGE_DESCRIPTION"
+    printf "type: %s\n" "$PACKAGE_TYPE"
+
+    printf "installed: "
+    if chocpkg installed "$PACKAGE_NAME"; then
+        printf "true\n"
+    else
+        printf "false\n"
+    fi
+    local deps=$(chocpkg dependencies "$PACKAGE_NAME")
+
+    printf "dependencies:"
+    for dep in $(chocpkg dependencies "$PACKAGE_NAME"); do
+        printf " %s" "$dep"
+    done
+    printf "\n"
+}
+
+cmd_dependencies() {
+    for dep in $DEPENDENCIES; do
+        echo "$dep"
+        chocpkg dependencies "$dep"
+    done | sort | uniq
+}
+
+usage() {
+    cat <<END
+Usage:
+    $0 packages
+        - List the names of all known packages.
+
+    $0 info [package]
+        - Display a description of the specified package, or all packages.
+
+    $0 install <package>
+        - Build and install the specified package, if not already installed.
+
+    $0 reinstall <package>
+        - Rebuild and reinstall the specified package, even if installed.
+
+    $0 build <package>
+        - Fetch and build the specified package, but do not install it.
+
+    $0 fetch <package>
+        - Download the specified package but do not build it.
+
+END
+}
+
+# "Package" commands operate on a specific package named on the command line.
+package_command() {
+    local cmd="$1" package="$2"
+    configure_for_package "$package"
+
+    case "$cmd" in
+        fetch)
+            cmd_fetch
+            ;;
+        build)
+            cmd_build
+            ;;
+        reinstall)
+            cmd_reinstall
+            ;;
+        install)
+            cmd_install
+            ;;
+        info)
+            cmd_info
+            ;;
+        dependencies)
+            cmd_dependencies
+            ;;
+        installed)
+            cmd_installed
+            ;;
+    esac
+}
+
+case "${1:-NONE}" in
+    packages)
+        cmd_packages
         ;;
-    fetch)
-        cmd_fetch
+    info)
+        cmd_info "$@"
         ;;
-    build)
-        cmd_build
+    fetch|build|reinstall|install|dependencies|installed)
+        package_command "$@"
         ;;
-    reinstall)
-        cmd_reinstall
-        ;;
-    install)
-        cmd_install
+    *)
+        usage
+        exit 1
         ;;
 esac
 
