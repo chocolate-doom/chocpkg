@@ -1,4 +1,4 @@
-
+description "Simple DirectMedia Layer"
 check_pkgconfig sdl2
 fetch_download http://www.libsdl.org/release/SDL2-2.0.4.tar.gz
 
@@ -17,4 +17,3 @@ if [ $(uname) = "Cygwin" ] || [[ "$BUILD_HOST" = *mingw* ]]; then
 fi
 
 build_autotools $config_options
-

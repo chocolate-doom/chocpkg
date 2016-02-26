@@ -50,6 +50,10 @@ basic_setup
 . chocpkg_modules.sh
 . "$CHOCPKG_ROOT/buildenv.sh"
 
+description() {
+    PACKAGE_DESCRIPTION="$*"
+}
+
 dependencies() {
     DEPENDENCIES+=" $*"
 }
@@ -66,6 +70,7 @@ configure_for_package() {
     PACKAGE_NAME=$package
     PACKAGE_DIR_NAME=$package
     PACKAGE_TYPE=target
+    PACKAGE_DESCRIPTION="Package $PACKAGE_NAME"
     DEPENDENCIES=""
     . "$pkg_file"
 

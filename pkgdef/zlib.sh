@@ -1,3 +1,4 @@
+description "Library for compressing/decompressing GZIP files"
 check_pkgconfig zlib
 fetch_download http://zlib.net/zlib-1.2.8.tar.gz
 build_autotools
