@@ -258,9 +258,6 @@ package_command() {
         install)
             cmd_install
             ;;
-        info)
-            cmd_info
-            ;;
         dependencies)
             cmd_dependencies
             ;;
