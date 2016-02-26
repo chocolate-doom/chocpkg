@@ -3,6 +3,17 @@ build_autotools::init() {
     PACKAGE_CONFIGURE_OPTS="$@"
 }
 
+need_autoreconf() {
+    if [ -e configure.in ] && [ ! -e configure.ac ]; then
+        local configure_ac=configure.in
+    else
+        local configure_ac=configure.ac
+    fi
+    # Need to run autoreconf if configure script has not been generated,
+    # or if configure.ac has been changed.
+    [ ! -e configure ] || [ $configure_ac -nt configure ]
+}
+
 # This function encapsulates the "./configure; make" process that does the
 # actual build of the package. This should work for most autotools-based
 # packages but the intention is that this can be overrriden by packages.
@@ -14,7 +25,7 @@ do_build() {
 
     # If we're checking out from a version control repository, we may need
     # to run the autotools commands first to generate the configure script.
-    if [ ! -e configure ] && ([ -e configure.ac ] || [ -e configure.in ]); then
+    if need_autoreconf; then
         autoreconf -fi
     fi
 
