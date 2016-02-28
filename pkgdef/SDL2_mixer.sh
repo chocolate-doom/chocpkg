@@ -17,4 +17,11 @@ if ! chocpkg installed libogg; then
     config_options+=" --disable-music-ogg"
 fi
 
+# FluidSynth, if we have it.
+if chocpkg installed fluidsynth; then
+    config_options+=" --enable-music-midi-fluidsynth"
+else
+    config_options+=" --disable-music-midi-fluidsynth"
+fi
+
 build_autotools $config_options
