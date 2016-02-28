@@ -104,7 +104,7 @@ setup_build_environment() {
 
     # ACLOCAL_PATH is a special case: we include the aclocal paths from both
     # target and native, so that it is possible to get the pkg-config macros.
-    ACLOCAL_PATH="$NATIVE_INSTALL_DIR/share/aclocal:$ACLOCAL_PATH"
+    ACLOCAL_PATH="$NATIVE_INSTALL_DIR/share/aclocal:${ACLOCAL_PATH:-}"
     if [ "$PACKAGE_TYPE" = "target" ]; then
         ACLOCAL_PATH="$INSTALL_DIR/share/aclocal:${ACLOCAL_PATH:-}"
     fi
