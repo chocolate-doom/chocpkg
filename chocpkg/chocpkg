@@ -176,6 +176,11 @@ cmd_reinstall() {
     do_install
 }
 
+cmd_shell() {
+    setup_build_environment
+    exec $SHELL
+}
+
 cmd_install() {
     # Already installed? Don't install again.
     if ! chocpkg installed "$PACKAGE_NAME"; then
@@ -278,6 +283,9 @@ package_command() {
         installed)
             cmd_installed
             ;;
+        shell)
+            cmd_shell
+            ;;
     esac
 }
 
@@ -288,7 +296,7 @@ case "${1:-NONE}" in
     info)
         cmd_info "$@"
         ;;
-    fetch|build|reinstall|install|dependencies|installed)
+    fetch|build|reinstall|install|dependencies|installed|shell)
         package_command "$@"
         ;;
     *)
