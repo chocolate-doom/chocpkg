@@ -33,7 +33,7 @@ END
 basic_setup() {
     if [ -z "${CHOCPKG_ROOT:-}" ]; then
         set_chocpkg_root
-        PATH="$CHOCPKG_ROOT/chocpkg:$CHOCPKG_ROOT/install.native/bin:$PATH"
+        PATH="$CHOCPKG_ROOT/chocpkg:$PATH"
     fi
 
     INSTALL_DIR="$CHOCPKG_ROOT/install"
@@ -104,9 +104,18 @@ setup_build_environment() {
 
     # ACLOCAL_PATH is a special case: we include the aclocal paths from both
     # target and native, so that it is possible to get the pkg-config macros.
-    ACLOCAL_PATH="$INSTALL_DIR/share/aclocal:${ACLOCAL_PATH:-}"
     ACLOCAL_PATH="$NATIVE_INSTALL_DIR/share/aclocal:$ACLOCAL_PATH"
+    if [ "$PACKAGE_TYPE" = "target" ]; then
+        ACLOCAL_PATH="$INSTALL_DIR/share/aclocal:${ACLOCAL_PATH:-}"
+    fi
     export ACLOCAL_PATH
+
+    # Same with PATH as for ACLOCAL_PATH. We can always run tools from
+    # install.native, but only from target install if we're building for it.
+    PATH="$NATIVE_INSTALL_DIR/bin:$PATH"
+    if [ "$PACKAGE_TYPE" = "target" ]; then
+        PATH="$INSTALL_DIR/bin:$PATH"
+    fi
 
     # We need to find where to look for pkg-config .pc files:
     PKG_CONFIG_PATH="$PACKAGE_INSTALL_DIR/lib/pkgconfig:${PKG_CONFIG_PATH:-}"
