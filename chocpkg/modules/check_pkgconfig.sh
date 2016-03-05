@@ -11,7 +11,7 @@ check_pkgconfig::init() {
 check_installed() {
     if ! have_tool pkg-config; then
         error_exit "pkg-config not installed; please run:" \
-                   "    chocpkg install pkg-config"
+                   "    chocpkg install native:pkg-config"
     fi
     pkg-config --exists "$PKGCONFIG_NAME"
 }
