@@ -1,6 +1,5 @@
 
 package_group::init() {
-    PACKAGE_TYPE=package-group
     dependencies "$@"
 }
 

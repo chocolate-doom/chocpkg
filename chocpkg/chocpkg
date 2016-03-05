@@ -111,8 +111,6 @@ configure_for_package() {
             # necessarily native as well.
             DEPENDENCIES=$(dependencies_for_native)
             ;;
-        package-group)
-            ;;
         *)
             error_exit "Unknown package type $PACKAGE_TYPE"
             ;;
