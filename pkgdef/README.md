@@ -95,15 +95,6 @@ dependencies other-package neato-lib
 package_group neato-lib dumbo-lib
 ```
 
-## Variables
-
-* `PACKAGE_TYPE`: has a value of either `native` or `target`. The
-  default is `target`. The variable controls whether the package is
-  built for the target system when doing cross-compiles, or whether it
-  is part of the build (native) system and just used to build tools as
-  part of the build process. The package type determines whether the
-  result is installed into `install` or `install.native`.
-
 ## Advanced builds
 
 Complicated packages can require custom build steps. The following functions

@@ -1,4 +1,5 @@
 build
+build.native
 install
 install.native
 packages

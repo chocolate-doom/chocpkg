@@ -26,7 +26,9 @@ extract_package_file() {
         mkdir -p "$PACKAGE_BUILD_DIR"
         cd "$PACKAGE_BUILD_DIR"
     else
-        cd "$BUILD_DIR"
+        local parent_dir=$(dirname "$PACKAGE_BUILD_DIR")
+        echo "cd to $parent_dir">/dev/stderr
+        cd "$parent_dir"
     fi
     (gunzip < "$dlfile" | tar -x) || (
         mv "$dlfile" "$dlfile.bad"

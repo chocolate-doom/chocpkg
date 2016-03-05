@@ -1,7 +1,7 @@
 
 package_group::init() {
     PACKAGE_TYPE=package-group
-    PKGGRP_PACKAGES="$*"
+    dependencies "$@"
 }
 
 do_fetch() {
@@ -18,20 +18,20 @@ do_build() {
 # Installing a package group means installing all its packages; we don't
 # trigger the build step like 'install' usually does (we don't have one).
 cmd_install() {
-    for package in $PKGGRP_PACKAGES; do
+    for package in $DEPENDENCIES; do
         chocpkg install "$package"
     done
 }
 
 # Reinstalling a package group means reinstalling *all* its packages.
 cmd_reinstall() {
-    for package in $PKGGRP_PACKAGES; do
+    for package in $DEPENDENCIES; do
         chocpkg reinstall "$package"
     done
 }
 
 cmd_dependencies() {
-    for package in $PKGGRP_PACKAGES; do
+    for package in $DEPENDENCIES; do
         echo "$package"
         chocpkg dependencies "$package"
     done | sort | uniq
@@ -39,7 +39,7 @@ cmd_dependencies() {
 
 # Package group is installed if all its packages are installed.
 cmd_installed() {
-    for package in $PKGGRP_PACKAGES; do
+    for package in $DEPENDENCIES; do
         chocpkg installed "$package"
     done
 }

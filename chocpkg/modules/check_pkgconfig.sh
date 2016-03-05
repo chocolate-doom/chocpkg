@@ -4,7 +4,7 @@ check_pkgconfig::init() {
 
     # If we're using pkg-config to check, we need to install pkg-config
     # first.
-    dependencies pkg-config
+    dependencies native:pkg-config
 }
 
 # Function that returns true if the package is installed.

@@ -36,12 +36,15 @@ basic_setup() {
         PATH="$CHOCPKG_ROOT/chocpkg:$PATH"
     fi
 
+    PACKAGES_DIR="$CHOCPKG_ROOT/packages"
     INSTALL_DIR="$CHOCPKG_ROOT/install"
     NATIVE_INSTALL_DIR="$CHOCPKG_ROOT/install.native"
-    PACKAGES_DIR="$CHOCPKG_ROOT/packages"
     BUILD_DIR="$CHOCPKG_ROOT/build"
+    NATIVE_BUILD_DIR="$CHOCPKG_ROOT/build.native"
 
-    mkdir -p "$INSTALL_DIR" "$NATIVE_INSTALL_DIR" "$PACKAGES_DIR" "$BUILD_DIR"
+    mkdir -p "$PACKAGES_DIR" \
+             "$INSTALL_DIR" "$NATIVE_INSTALL_DIR" \
+             "$BUILD_DIR" "$NATIVE_BUILD_DIR"
 }
 
 basic_setup
@@ -58,23 +61,40 @@ dependencies() {
     DEPENDENCIES+=" $*"
 }
 
+dependencies_for_native() {
+    for dep in $DEPENDENCIES; do
+        if [[ "$PACKAGE_TYPE" = native ]] && ! [[ "$dep" =~ native: ]]; then
+            echo "native:$dep"
+        else
+            echo "$dep"
+        fi
+    done
+}
+
 # Given a package name, find the pkgdef file associated with it, source
 # the contents of the file and set various variables.
 configure_for_package() {
     local package=$1
+    PACKAGE_NAME=$package
+
+    # Detect native: prefix and set package type.
+    if [[ "$package" =~ ^native: ]]; then
+        PACKAGE_TYPE=native
+        package=${package/#native:/}
+    else
+        PACKAGE_TYPE=target
+    fi
+
+    # Defaults before loading package file.
+    PACKAGE_DESCRIPTION="Package $package"
+    DEPENDENCIES=""
+    PACKAGE_DIR_NAME=$package
+
     local pkg_file="$CHOCPKG_ROOT/pkgdef/$package.sh"
     if [ ! -e "$pkg_file" ]; then
         error_exit "Package file $package.sh not found."
     fi
-    # Defaults for package unless overridden:
-    PACKAGE_NAME=$package
-    PACKAGE_DIR_NAME=$package
-    PACKAGE_TYPE=target
-    PACKAGE_DESCRIPTION="Package $PACKAGE_NAME"
-    DEPENDENCIES=""
     . "$pkg_file"
-
-    PACKAGE_BUILD_DIR="$BUILD_DIR/$PACKAGE_DIR_NAME"
 
     # We set up build differently depending on the package type: some packages
     # are for the target we're building for; others are native tools to run on
@@ -82,9 +102,14 @@ configure_for_package() {
     case "$PACKAGE_TYPE" in
         target)
             PACKAGE_INSTALL_DIR="$INSTALL_DIR"
+            PACKAGE_BUILD_DIR="$BUILD_DIR/$PACKAGE_DIR_NAME"
             ;;
         native)
             PACKAGE_INSTALL_DIR="$NATIVE_INSTALL_DIR"
+            PACKAGE_BUILD_DIR="$NATIVE_BUILD_DIR/$PACKAGE_DIR_NAME"
+            # When installing a native package, all its dependencies are
+            # necessarily native as well.
+            DEPENDENCIES=$(dependencies_for_native)
             ;;
         package-group)
             ;;
@@ -197,7 +222,6 @@ cmd_packages() {
 package_info() {
     printf "package: %s\n" "$PACKAGE_NAME"
     printf "description: %s\n" "$PACKAGE_DESCRIPTION"
-    printf "type: %s\n" "$PACKAGE_TYPE"
 
     printf "installed: "
     if chocpkg installed "$PACKAGE_NAME"; then
