@@ -10,15 +10,15 @@ config_options="
 "
 
 # ...except ones we have installed:
-if ! chocpkg installed flac; then
+if ! chocpkg installed ${PACKAGE_TYPE}:flac; then
     config_options+=" --disable-music-flac"
 fi
-if ! chocpkg installed libogg; then
+if ! chocpkg installed ${PACKAGE_TYPE}:libogg; then
     config_options+=" --disable-music-ogg"
 fi
 
 # FluidSynth, if we have it.
-if chocpkg installed fluidsynth; then
+if chocpkg installed ${PACKAGE_TYPE}:fluidsynth; then
     config_options+=" --enable-music-midi-fluidsynth"
 else
     config_options+=" --disable-music-midi-fluidsynth"

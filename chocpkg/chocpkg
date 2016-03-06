@@ -77,10 +77,10 @@ configure_for_package() {
     local package=$1
     PACKAGE_NAME=$package
 
-    # Detect native: prefix and set package type.
-    if [[ "$package" =~ ^native: ]]; then
-        PACKAGE_TYPE=native
-        package=${package/#native:/}
+    # Allow type: prefix to specify PACKAGE_TYPE to install explicitly.
+    if [[ "$package" =~ .*:.* ]]; then
+        PACKAGE_TYPE=${package/%:*/}
+        package=${package/#*:/}
     else
         PACKAGE_TYPE=target
     fi
@@ -107,6 +107,7 @@ configure_for_package() {
         native)
             PACKAGE_INSTALL_DIR="$NATIVE_INSTALL_DIR"
             PACKAGE_BUILD_DIR="$NATIVE_BUILD_DIR/$PACKAGE_DIR_NAME"
+
             # When installing a native package, all its dependencies are
             # necessarily native as well.
             DEPENDENCIES=$(dependencies_for_native)
