@@ -29,6 +29,10 @@ fetch_git() {
     install_module fetch_git "$@"
 }
 
+fetch_hg() {
+    install_module fetch_hg "$@"
+}
+
 # Default implementations of functions, as fallbacks:
 
 check_installed() {
