@@ -129,7 +129,7 @@ configure_for_package() {
     PACKAGE_DESCRIPTION="Package $package"
     DEPENDENCIES=""
     PACKAGE_DIR_NAME=$package
-    ALL_VARIANTS=(stable)
+    ALL_VARIANTS=()
 
     local pkg_file="$CHOCPKG_ROOT/pkgdef/$package.sh"
     if [ ! -e "$pkg_file" ]; then
@@ -137,6 +137,10 @@ configure_for_package() {
     fi
     . "$pkg_file"
 
+    # If the package defines no variants, we assume it only has stable.
+    if [ "${#ALL_VARIANTS[@]}" -eq 0 ]; then
+        ALL_VARIANTS=(stable)
+    fi
     if ! valid_variant "$PACKAGE_VARIANT"; then
         error_exit "Unknown variant $PACKAGE_VARIANT for package $package."
     fi
@@ -278,6 +282,14 @@ package_info() {
     printf "dependencies:"
     for dep in $(chocpkg dependencies "$PACKAGE_NAME"); do
         printf " %s" "$dep"
+    done
+    printf "\n"
+
+    printf "variants:"
+    for v in "${ALL_VARIANTS[@]}"; do
+        printf "%s\n" "$v"
+    done | sort | uniq | while read v; do
+        printf " %s" "$v"
     done
     printf "\n"
 }
