@@ -90,6 +90,19 @@ valid_variant() {
     false
 }
 
+# Get the default variant for the specified package. Usually this is the
+# stable variant but it can be overridden.
+package_default_variant() {
+    local for_package=$1
+    for v in "${LATEST_PACKAGES[@]}"; do
+        if [ "$v" = "$for_package" ]; then
+            echo "latest"
+            return
+        fi
+    done
+    echo "stable"
+}
+
 # Given a package name, find the pkgdef file associated with it, source
 # the contents of the file and set various variables.
 configure_for_package() {
@@ -109,7 +122,7 @@ configure_for_package() {
         PACKAGE_VARIANT=${package/#*\//}
         package=${package/%\/*/}
     else
-        PACKAGE_VARIANT=stable
+        PACKAGE_VARIANT=$(package_default_variant "$package")
     fi
 
     # Defaults before loading package file.
