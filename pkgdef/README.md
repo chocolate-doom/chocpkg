@@ -75,6 +75,32 @@ Build modules specify how to build the package after it is fetched:
 build_autotools --disable-broken-feature
 ```
 
+### Variants
+
+Variants allow building of different versions of the same package. An
+example is "latest stable release" vs. "latest version from source
+repository". The default variant is called `stable`. A variant can be
+specified on the command line with a suffix, for example, to build the
+variant `latest` of package `neato-lib`:
+
+```shell
+chocpkg install neato-lib/latest
+```
+
+In package files the `variant` function is used for conditional code
+that is only executed for a particular variant. Usually this is used
+to select a fetch module. For example:
+
+```shell
+variant stable fetch_download http://example.com/neato-lib-0.0.1.tar.gz
+variant latest fetch_git git://example.com/neato-lib.git
+variant frob-branch fetch_git git://example.com/neato-lib.git frob-branch
+```
+
+By convention, the `stable` variant is "the most recent stable release
+of the package" while the `latest` variant is "the latest version in
+the source control repository".
+
 ### Other modules and functions
 
 * `dependencies`: Arguments provided to the function are the names

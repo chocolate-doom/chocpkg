@@ -85,6 +85,14 @@ configure_for_package() {
         PACKAGE_TYPE=target
     fi
 
+    # Allow /suffix to specify a variant to build.
+    if [[ "$package" =~ .*/.* ]]; then
+        PACKAGE_VARIANT=${package/#*\//}
+        package=${package/%\/*/}
+    else
+        PACKAGE_VARIANT=stable
+    fi
+
     # Defaults before loading package file.
     PACKAGE_DESCRIPTION="Package $package"
     DEPENDENCIES=""

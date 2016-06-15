@@ -1,6 +1,8 @@
 description "Simple DirectMedia Layer"
 check_pkgconfig sdl2
-fetch_download http://www.libsdl.org/release/SDL2-2.0.4.tar.gz
+
+variant stable fetch_download http://www.libsdl.org/release/SDL2-2.0.4.tar.gz
+variant latest fetch_hg https://hg.libsdl.org/SDL/
 
 config_options=
 
