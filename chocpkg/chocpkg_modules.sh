@@ -5,13 +5,6 @@ install_module() {
     ${module_name}::init "$@"
 }
 
-variant() {
-    local for_variant=$1; shift
-    if [ "$PACKAGE_VARIANT" = "$for_variant" ]; then
-        "$@"
-    fi
-}
-
 package_group() {
     install_module package_group "$@"
 }

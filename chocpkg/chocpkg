@@ -71,6 +71,25 @@ dependencies_for_native() {
     done
 }
 
+variant() {
+    local for_variant=$1; shift
+    if [ "$PACKAGE_VARIANT" = "$for_variant" ]; then
+        "$@"
+    fi
+    ALL_VARIANTS+=("$for_variant")
+}
+
+# Check if the given variant was declared in the package file.
+valid_variant() {
+    local for_variant=$1
+    for v in "${ALL_VARIANTS[@]}"; do
+        if [ "$v" = "$for_variant" ]; then
+            return 0
+        fi
+    done
+    false
+}
+
 # Given a package name, find the pkgdef file associated with it, source
 # the contents of the file and set various variables.
 configure_for_package() {
@@ -97,12 +116,17 @@ configure_for_package() {
     PACKAGE_DESCRIPTION="Package $package"
     DEPENDENCIES=""
     PACKAGE_DIR_NAME=$package
+    ALL_VARIANTS=(stable)
 
     local pkg_file="$CHOCPKG_ROOT/pkgdef/$package.sh"
     if [ ! -e "$pkg_file" ]; then
         error_exit "Package file $package.sh not found."
     fi
     . "$pkg_file"
+
+    if ! valid_variant "$PACKAGE_VARIANT"; then
+        error_exit "Unknown variant $PACKAGE_VARIANT for package $package."
+    fi
 
     # We set up build differently depending on the package type: some packages
     # are for the target we're building for; others are native tools to run on
