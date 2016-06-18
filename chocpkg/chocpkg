@@ -58,16 +58,17 @@ description() {
 }
 
 dependencies() {
-    DEPENDENCIES+=" $*"
+    DEPENDENCIES+=("$@")
 }
 
-dependencies_for_native() {
-    for dep in $DEPENDENCIES; do
+set_dependencies_native() {
+    local i=0
+    while [ $i -lt ${#DEPENDENCIES[@]} ]; do
+        dep="${DEPENDENCIES[$i]}"
         if [[ "$PACKAGE_TYPE" = native ]] && ! [[ "$dep" =~ native: ]]; then
-            echo "native:$dep"
-        else
-            echo "$dep"
+            DEPENDENCIES[$i]="native:$dep"
         fi
+        i=$((i + 1))
     done
 }
 
@@ -127,7 +128,7 @@ configure_for_package() {
 
     # Defaults before loading package file.
     PACKAGE_DESCRIPTION="Package $package"
-    DEPENDENCIES=""
+    DEPENDENCIES=()
     PACKAGE_DIR_NAME=$package
     ALL_VARIANTS=()
 
@@ -159,7 +160,7 @@ configure_for_package() {
 
             # When installing a native package, all its dependencies are
             # necessarily native as well.
-            DEPENDENCIES=$(dependencies_for_native)
+            set_dependencies_native
             ;;
         *)
             error_exit "Unknown package type $PACKAGE_TYPE"
@@ -204,7 +205,7 @@ setup_build_environment() {
 }
 
 install_dependencies() {
-    for dep in $DEPENDENCIES; do
+    for dep in "${DEPENDENCIES[@]:0}"; do
         chocpkg install "$dep"
     done
 }
@@ -309,7 +310,7 @@ cmd_info() {
 }
 
 cmd_dependencies() {
-    for dep in $DEPENDENCIES; do
+    for dep in "${DEPENDENCIES[@]:0}"; do
         echo "$dep"
         chocpkg dependencies "$dep"
     done | sort | uniq
