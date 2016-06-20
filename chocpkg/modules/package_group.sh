@@ -17,20 +17,24 @@ do_build() {
 # Installing a package group means installing all its packages; we don't
 # trigger the build step like 'install' usually does (we don't have one).
 cmd_install() {
-    for package in "${DEPENDENCIES[@]:0}"; do
-        chocpkg install "$package"
+    local i
+    for i in "${!DEPENDENCIES[@]}"; do
+        chocpkg install "${DEPENDENCIES[$i]}"
     done
 }
 
 # Reinstalling a package group means reinstalling *all* its packages.
 cmd_reinstall() {
-    for package in "${DEPENDENCIES[@]:0}"; do
-        chocpkg reinstall "$package"
+    local i
+    for i in "${!DEPENDENCIES[@]}"; do
+        chocpkg reinstall "${DEPENDENCIES[$i]}"
     done
 }
 
 cmd_dependencies() {
-    for package in "${DEPENDENCIES[@]:0}"; do
+    local i
+    for i in "${!DEPENDENCIES[@]}"; do
+        local package="${DEPENDENCIES[$i]}"
         echo "$package"
         chocpkg dependencies "$package"
     done | sort | uniq
@@ -38,8 +42,9 @@ cmd_dependencies() {
 
 # Package group is installed if all its packages are installed.
 cmd_installed() {
-    for package in "${DEPENDENCIES[@]:0}"; do
-        chocpkg installed "$package"
+    local i
+    for i in "${!DEPENDENCIES[@]}"; do
+        chocpkg installed "${DEPENDENCIES[$i]}"
     done
 }
 

@@ -62,9 +62,9 @@ dependencies() {
 }
 
 set_dependencies_native() {
-    local i=0
-    while [ $i -lt ${#DEPENDENCIES[@]} ]; do
-        dep="${DEPENDENCIES[$i]}"
+    local i
+    for i in ${!DEPENDENCIES[@]}; do
+        local dep="${DEPENDENCIES[$i]}"
         if [[ "$PACKAGE_TYPE" = native ]] && ! [[ "$dep" =~ native: ]]; then
             DEPENDENCIES[$i]="native:$dep"
         fi
@@ -82,8 +82,9 @@ variant() {
 
 # Check if the given variant was declared in the package file.
 valid_variant() {
-    local for_variant=$1
-    for v in "${ALL_VARIANTS[@]}"; do
+    local i for_variant=$1
+    for i in "${!ALL_VARIANTS[@]}"; do
+        local v="${ALL_VARIANTS[$i]}"
         if [ "$v" = "$for_variant" ]; then
             return 0
         fi
@@ -94,8 +95,9 @@ valid_variant() {
 # Get the default variant for the specified package. Usually this is the
 # stable variant but it can be overridden.
 package_default_variant() {
-    local for_package=$1
-    for v in "${LATEST_PACKAGES[@]}"; do
+    local i for_package=$1
+    for i in "${!LATEST_PACKAGES[@]}"; do
+        local v="${LATEST_PACKAGES[$i]}"
         if [ "$v" = "$for_package" ]; then
             echo "latest"
             return
@@ -142,6 +144,7 @@ configure_for_package() {
     if [ "${#ALL_VARIANTS[@]}" -eq 0 ]; then
         ALL_VARIANTS=(stable)
     fi
+
     if ! valid_variant "$PACKAGE_VARIANT"; then
         error_exit "Unknown variant $PACKAGE_VARIANT for package $package."
     fi
@@ -205,7 +208,9 @@ setup_build_environment() {
 }
 
 install_dependencies() {
-    for dep in "${DEPENDENCIES[@]:0}"; do
+    local i
+    for i in "${!DEPENDENCIES[@]}"; do
+        local dep="${DEPENDENCIES[$i]}"
         chocpkg install "$dep"
     done
 }
@@ -216,6 +221,7 @@ cmd_installed() {
 }
 
 cmd_fetch() {
+    check_valid_variant
     do_fetch
 }
 
@@ -287,8 +293,9 @@ package_info() {
     printf "\n"
 
     printf "variants:"
-    for v in "${ALL_VARIANTS[@]}"; do
-        printf "%s\n" "$v"
+    local i
+    for i in "${!ALL_VARIANTS[@]}"; do
+        printf "%s\n" "${ALL_VARIANTS[$i]}"
     done | sort | uniq | while read v; do
         printf " %s" "$v"
     done
@@ -310,7 +317,9 @@ cmd_info() {
 }
 
 cmd_dependencies() {
-    for dep in "${DEPENDENCIES[@]:0}"; do
+    local i
+    for i in "${!DEPENDENCIES[@]}"; do
+        local dep="${DEPENDENCIES[$i]}"
         echo "$dep"
         chocpkg dependencies "$dep"
     done | sort | uniq
