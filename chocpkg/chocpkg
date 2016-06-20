@@ -342,7 +342,14 @@ END
 
 # "Package" commands operate on a specific package named on the command line.
 package_command() {
-    local cmd="$1" package="$2"
+    local cmd="$1"
+
+    if [ $# -lt 2 ]; then
+        usage
+        exit 1
+    fi
+
+    local package="$2"
     configure_for_package "$package"
 
     case "$cmd" in
