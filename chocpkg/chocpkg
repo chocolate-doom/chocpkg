@@ -221,7 +221,6 @@ cmd_installed() {
 }
 
 cmd_fetch() {
-    check_valid_variant
     do_fetch
 }
 
