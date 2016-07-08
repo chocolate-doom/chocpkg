@@ -26,6 +26,11 @@ do_build() {
     # If we're checking out from a version control repository, we may need
     # to run the autotools commands first to generate the configure script.
     if need_autoreconf; then
+        if ! have_tool autoreconf; then
+            error_exit "autotools not installed; please run:" \
+                       "    chocpkg install native:autotools"
+        fi
+
         autoreconf -fi
     fi
 
@@ -43,7 +48,7 @@ do_build() {
 # most autotools-based packages, but can be overridden by packages.
 do_install() {
     make install || (
-         error_exit "Failed to install package $PACKAGE_NAME."
+        error_exit "Failed to install package $PACKAGE_NAME."
     )
 }
 
