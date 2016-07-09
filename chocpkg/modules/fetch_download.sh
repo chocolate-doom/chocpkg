@@ -1,9 +1,26 @@
 
 fetch_download::init() {
     PACKAGE_URL=$1
+    PACKAGE_SHA256_DIGEST=$2
     PACKAGE_FILENAME=$(basename "$PACKAGE_URL")
     PACKAGE_DIR_NAME="${PACKAGE_FILENAME/.tar.gz/}"
     IS_TAR_BOMB=false
+}
+
+check_sha256_digest() {
+    local filename="$1" dldigest
+    dldigest=$(sha256_digest "$filename")
+    # For development purposes only.
+    if [ "$PACKAGE_SHA256_DIGEST" = "ignore-checksum" ]; then
+        echo "SHA256 digest of downloaded $PACKAGE_FILENAME:"
+        echo "    $dldigest"
+        return
+    fi
+    if [ "$dldigest" != "$PACKAGE_SHA256_DIGEST" ]; then
+        error_exit "sha256 checksum incorrect for $PACKAGE_FILENAME." \
+                   "expected: $PACKAGE_SHA256_DIGEST" \
+                   "checksum: $dldigest"
+    fi
 }
 
 download_package_file() {
@@ -13,6 +30,7 @@ download_package_file() {
         if ! chocurl "$PACKAGE_URL" > $tmpfile; then
             error_exit "Failed to download $PACKAGE_URL"
         fi
+        check_sha256_digest "$tmpfile"
         mv "$tmpfile" "$dlfile"
     fi
 }

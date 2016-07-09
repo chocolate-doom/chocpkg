@@ -27,3 +27,19 @@ error_exit() {
     exit 1
 }
 
+sha256() {
+    if have_tool shasum; then
+        shasum -a 256 "$@"
+    elif have_tool sha256sum; then
+        sha256sum "$@"
+    else
+        error_exit "No sha256 tool installed."
+    fi
+}
+
+sha256_digest() {
+    sha256 -b "$@" | while read digest rest; do
+        echo "$digest"
+    done
+}
+
