@@ -34,7 +34,13 @@ do_build() {
         autoreconf -fi
     fi
 
-    ./configure --prefix="$PACKAGE_INSTALL_DIR" $host_opt \
+    local configure_path="$PWD/configure"
+    if [ ! -z "${AUTOTOOLS_BUILD_PATH:-}" ]; then
+        mkdir -p "$AUTOTOOLS_BUILD_PATH"
+        cd "$AUTOTOOLS_BUILD_PATH"
+    fi
+
+    "$configure_path" --prefix="$PACKAGE_INSTALL_DIR" $host_opt \
                 $PACKAGE_CONFIGURE_OPTS || (
         error_exit "Failed to configure package $PACKAGE_NAME for build."
     )
@@ -47,6 +53,10 @@ do_build() {
 # Function encapsulating the "make install" step which should work for
 # most autotools-based packages, but can be overridden by packages.
 do_install() {
+    if [ ! -z "${AUTOTOOLS_BUILD_PATH:-}" ]; then
+        cd "$AUTOTOOLS_BUILD_PATH"
+    fi
+
     make install || (
         error_exit "Failed to install package $PACKAGE_NAME."
     )
