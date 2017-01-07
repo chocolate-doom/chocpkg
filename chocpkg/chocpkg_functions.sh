@@ -43,3 +43,28 @@ sha256_digest() {
     done
 }
 
+# Works like curl, but will try other tools.
+cat_url() {
+    url=$1
+
+    if have_tool curl; then
+        curl "$url"
+        return
+    fi
+
+    if have_tool wget; then
+        wget "$url" -O -
+        return
+    fi
+
+    # Desperate?
+    for l in lynx links elinks; do
+        if have_tool $l; then
+            echo "Using $l to download $url..." >&2
+            $l -source "$url"
+            return
+        fi
+    done
+
+    error_exit "No tool install to fetch URLs. Please install curl or wget."
+}

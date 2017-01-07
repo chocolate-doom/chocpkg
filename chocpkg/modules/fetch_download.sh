@@ -27,7 +27,7 @@ download_package_file() {
     local dlfile="$PACKAGES_DIR/$PACKAGE_FILENAME"
     if [ ! -e "$dlfile" ]; then
         local tmpfile="$dlfile.part"
-        if ! chocurl "$PACKAGE_URL" > $tmpfile; then
+        if ! cat_url "$PACKAGE_URL" > $tmpfile; then
             error_exit "Failed to download $PACKAGE_URL"
         fi
         check_sha256_digest "$tmpfile"
