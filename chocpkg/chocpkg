@@ -112,7 +112,7 @@ install_dependencies() {
 }
 
 cmd_installed() {
-    setup_build_environment
+    chocpkg::environment::setup_build_environment
     check_installed
 }
 
@@ -130,7 +130,7 @@ cmd_build() {
     echo
     cd "$PACKAGE_BUILD_DIR"
 
-    setup_build_environment
+    chocpkg::environment::setup_build_environment
 
     if ! prebuild_setup; then
         error_exit "Failed pre-build setup step for $PACKAGE_NAME."
@@ -146,7 +146,7 @@ cmd_reinstall() {
 }
 
 cmd_shell() {
-    setup_build_environment
+    chocpkg::environment::setup_build_environment
     exec $SHELL
 }
 

@@ -17,19 +17,14 @@ description() {
     PACKAGE_DESCRIPTION="$*"
 }
 
-dependencies() {
-    DEPENDENCIES+=("$@")
+# Function invoked before a package is built to set up the build environment,
+# if necessary. Can be overridden by pkgdef files.
+prebuild_setup() {
+    true
 }
 
-set_dependencies_native() {
-    local i
-    for i in ${!DEPENDENCIES[@]}; do
-        local dep="${DEPENDENCIES[$i]}"
-        if [[ "$PACKAGE_TYPE" = native ]] && ! [[ "$dep" =~ native: ]]; then
-            DEPENDENCIES[$i]="native:$dep"
-        fi
-        i=$((i + 1))
-    done
+dependencies() {
+    DEPENDENCIES+=("$@")
 }
 
 variant() {
@@ -40,8 +35,19 @@ variant() {
     ALL_VARIANTS+=("$for_variant")
 }
 
+chocpkg::environment::set_dependencies_native() {
+    local i
+    for i in ${!DEPENDENCIES[@]}; do
+        local dep="${DEPENDENCIES[$i]}"
+        if [[ "$PACKAGE_TYPE" = native ]] && ! [[ "$dep" =~ native: ]]; then
+            DEPENDENCIES[$i]="native:$dep"
+        fi
+        i=$((i + 1))
+    done
+}
+
 # Check if the given variant was declared in the package file.
-valid_variant() {
+chocpkg::environment::valid_variant() {
     local i for_variant=$1
     for i in "${!ALL_VARIANTS[@]}"; do
         local v="${ALL_VARIANTS[$i]}"
@@ -56,7 +62,7 @@ valid_variant() {
 # package. These control where we extract the source code to, and where we
 # "make install" the built results into, respectively. We use different
 # directories for target and native builds.
-set_package_dirs() {
+chocpkg::environment::set_package_dirs() {
     case "$PACKAGE_TYPE" in
         target)
             PACKAGE_INSTALL_DIR="$INSTALL_DIR"
@@ -74,7 +80,7 @@ set_package_dirs() {
 
 # Having set PACKAGE_NAME, PACKAGE_VARIANT and PACKAGE_TYPE, evaluate the
 # package file by importing it as a shell script.
-load_package_file() {
+chocpkg::environment::load_package_file() {
     # Defaults before loading package file.
     DEPENDENCIES=()
     ALL_VARIANTS=()
@@ -92,23 +98,23 @@ load_package_file() {
         ALL_VARIANTS=(stable)
     fi
 
-    if ! valid_variant "$PACKAGE_VARIANT"; then
+    if ! chocpkg::environment::valid_variant "$PACKAGE_VARIANT"; then
         error_exit "Unknown variant $PACKAGE_VARIANT for $PACKAGE_NAME."
     fi
 
     # When installing a native package, all its dependencies are
     # necessarily native as well.
     if [ "$PACKAGE_TYPE" = native ]; then
-        set_dependencies_native
+        chocpkg::environment::set_dependencies_native
     fi
 
-    set_package_dirs
+    chocpkg::environment::set_package_dirs
 }
 
 # setup_build_environment sets environment variables for build. This is
 # deliberately only done when needed, as otherwise the value could affect
 # child builds when recursing to build dependent packages.
-setup_build_environment() {
+chocpkg::environment::setup_build_environment() {
     CPPFLAGS="-I$PACKAGE_INSTALL_DIR/include"
     LDFLAGS="-L$PACKAGE_INSTALL_DIR/lib ${LDFLAGS:-}"
     export CPPFLAGS LDFLAGS
@@ -148,11 +154,5 @@ setup_build_environment() {
     fi
 }
 
-# Function invoked before a package is built to set up the build environment,
-# if necessary. Can be overridden by pkgdef files.
-prebuild_setup() {
-    true
-}
-
-load_package_file
+chocpkg::environment::load_package_file
 
