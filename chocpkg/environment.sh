@@ -7,12 +7,6 @@
 
 . "$CHOCPKG_ROOT/chocpkg/modules.sh"
 
-# Recursive function that wraps the main script. Used by some packages to
-# conditionally do stuff based on whether other packages are installed.
-chocpkg() {
-    "$0" "$@"
-}
-
 description() {
     PACKAGE_DESCRIPTION="$*"
 }

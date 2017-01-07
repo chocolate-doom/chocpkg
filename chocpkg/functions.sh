@@ -1,3 +1,9 @@
+# Recursive function that wraps the main script. Used by some packages to
+# conditionally do stuff based on whether other packages are installed.
+chocpkg() {
+    "$0" "$@"
+}
+
 # Determine if a given program is in the PATH.
 have_tool() {
     tool=$1
