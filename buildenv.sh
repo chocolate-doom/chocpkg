@@ -26,17 +26,10 @@ MAKE_OPTS=
 LATEST_PACKAGES=(chocolate-doom)
 #LATEST_PACKAGES+=(SDL2 SDL2_image SDL2_mixer SDL2_net)
 
-# On OS X, we must set additional options: build 32-bit binaries, and the
-# target API version.
 if [ $(uname) = "Darwin" ]; then
-    CC="gcc -m32"
-    CXX="g++ -m32"
     LDFLAGS="-lobjc ${LDFLAGS:-}"
     MACOSX_DEPLOYMENT_TARGET=10.7
-    export CC CXX LDFLAGS MACOSX_DEPLOYMENT_TARGET
-
-    # Treat this like a cross-compile, since we're building 32-bit:
-    IS_CROSS_COMPILE=true
+    export LDFLAGS MACOSX_DEPLOYMENT_TARGET
 else
     # TODO: explain what this does
     LDFLAGS="-Wl,-rpath -Wl,$INSTALL_DIR/lib ${LDFLAGS:-}"
