@@ -105,11 +105,17 @@ package_default_variant() {
     echo "stable"
 }
 
-# Given a package name, find the pkgdef file associated with it, source
-# the contents of the file and set various variables.
-configure_for_package() {
+# Given a package name given on the command line, set the PACKAGE_NAME,
+# PACKAGE_VARIANT and PACKAGE_TYPE variables. Accepts different variations
+# on syntax, eg.
+#
+#   pkgname                 # Default type and variant
+#   native:pkgname          # Type explicitly specified
+#   pkgname/latest          # Variant explicitly specified
+#   native:pkgname/latest   # Both explicitly specified
+#
+set_package_variables() {
     local package=$1
-    PACKAGE_NAME=$package
 
     # Allow type: prefix to specify PACKAGE_TYPE to install explicitly.
     if [[ "$package" =~ .*:.* ]]; then
@@ -127,15 +133,21 @@ configure_for_package() {
         PACKAGE_VARIANT=$(package_default_variant "$package")
     fi
 
-    # Defaults before loading package file.
-    PACKAGE_DESCRIPTION="Package $package"
-    DEPENDENCIES=()
-    PACKAGE_DIR_NAME=$package
-    ALL_VARIANTS=()
+    PACKAGE_NAME="$package"
+}
 
-    local pkg_file="$CHOCPKG_ROOT/pkgdef/$package.sh"
+# Having set PACKAGE_NAME, PACKAGE_VARIANT and PACKAGE_TYPE, evaluate the
+# package file by importing it as a shell script.
+load_package_file() {
+    # Defaults before loading package file.
+    DEPENDENCIES=()
+    ALL_VARIANTS=()
+    PACKAGE_DESCRIPTION="Package $PACKAGE_NAME"
+    PACKAGE_DIR_NAME=$PACKAGE_NAME
+
+    local pkg_file="$CHOCPKG_ROOT/pkgdef/$PACKAGE_NAME.sh"
     if [ ! -e "$pkg_file" ]; then
-        error_exit "Package file $package.sh not found."
+        error_exit "Package file $PACKAGE_NAME.sh not found."
     fi
     . "$pkg_file"
 
@@ -145,12 +157,21 @@ configure_for_package() {
     fi
 
     if ! valid_variant "$PACKAGE_VARIANT"; then
-        error_exit "Unknown variant $PACKAGE_VARIANT for package $package."
+        error_exit "Unknown variant $PACKAGE_VARIANT for $PACKAGE_NAME."
     fi
 
-    # We set up build differently depending on the package type: some packages
-    # are for the target we're building for; others are native tools to run on
-    # the build machine as part of the build process.
+    # When installing a native package, all its dependencies are
+    # necessarily native as well.
+    if [ "$PACKAGE_TYPE" = native ]; then
+        set_dependencies_native
+    fi
+}
+
+# Set the PACKAGE_BUILD_DIR and PACKAGE_INSTALL_DIR directories for the given
+# package. These control where we extract the source code to, and where we
+# "make install" the built results into, respectively. We use different
+# directories for target and native builds.
+set_package_dirs() {
     case "$PACKAGE_TYPE" in
         target)
             PACKAGE_INSTALL_DIR="$INSTALL_DIR"
@@ -159,15 +180,19 @@ configure_for_package() {
         native)
             PACKAGE_INSTALL_DIR="$NATIVE_INSTALL_DIR"
             PACKAGE_BUILD_DIR="$NATIVE_BUILD_DIR/$PACKAGE_DIR_NAME"
-
-            # When installing a native package, all its dependencies are
-            # necessarily native as well.
-            set_dependencies_native
             ;;
         *)
             error_exit "Unknown package type $PACKAGE_TYPE"
             ;;
     esac
+}
+
+# Given a package name, find the pkgdef file associated with it, source
+# the contents of the file and set various variables.
+configure_for_package() {
+    set_package_variables "$1"
+    load_package_file
+    set_package_dirs
 }
 
 # setup_build_environment sets environment variables for build. This is
