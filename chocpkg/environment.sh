@@ -148,5 +148,11 @@ setup_build_environment() {
     fi
 }
 
+# Function invoked before a package is built to set up the build environment,
+# if necessary. Can be overridden by pkgdef files.
+prebuild_setup() {
+    true
+}
+
 load_package_file
 

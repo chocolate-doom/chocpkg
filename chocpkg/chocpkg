@@ -120,12 +120,6 @@ cmd_fetch() {
     do_fetch
 }
 
-# Function invoked before a package is built to set up the build environment,
-# if necessary. Can be overridden by pkgdef files.
-prebuild_setup() {
-    true
-}
-
 cmd_build() {
     install_dependencies
     chocpkg fetch "$PACKAGE_NAME"
