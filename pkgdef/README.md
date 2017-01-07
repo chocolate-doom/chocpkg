@@ -17,17 +17,21 @@ or the system package manager).
 If a check module is not installed, the default is to always
 assume the package is not installed:
 
-* `check_pkgconfig`: invokes `pkg-config` to determine if the package
-  is installed. The name of the `pkg-config` .pc file must be provided
-  as an argument to `check_pkgconfig`; for example:
+#### check_pkgconfig
+
+`check_pkgconfig` invokes `pkg-config` to determine if the package
+is installed. The name of the `pkg-config` .pc file must be provided
+as an argument to `check_pkgconfig`; for example:
 
 ```shell
 check_pkgconfig SDL2
 ```
 
-* `check_tool`: checks if a particular tool is installed in `$PATH`
-  to determine if the package is installed. The name of the tool must
-  be provided as an argument to `check_tool`; for example:
+#### check_tool
+
+`check_tool` checks if a particular tool is installed in `$PATH`
+to determine if the package is installed. The name of the tool must
+be provided as an argument to `check_tool`; for example:
 
 ```shell
 check_tool gnome-terminal
@@ -37,25 +41,28 @@ check_tool gnome-terminal
 
 Fetch modules specify how to retrieve the package from the Internet:
 
-* `fetch_download`: downloads the package from a URL specified as
-  an argument.
-  The file to
-  be downloaded is assumed to be a well-formed tar.gz file with all its
-  contents in a directory that matches the package name; if this is not
-  the case, the variable `$IS_TAR_BOMB` should be set to `true`.
-  Example use:
+#### fetch_download
+
+`fetch_download` downloads the package from a URL specified as an argument.
+The file to be downloaded is assumed to be a well-formed tar.gz file with
+all its contents in a directory that matches the package name; if this is
+not the case, the variable `$IS_TAR_BOMB` should be set to `true`.
+
+Example use:
 
 ```shell
 fetch_download http://example.com/example-pkg.tar.gz
 IS_TAR_BOMB=true
 ```
 
-* `fetch_git`: downloads the package from a Git repository at the URL
-  given as an argument.
-  The branch `master`
-  will be checked out by default; this can be overriden by providing
-  the branch name as a second argument to `fetch_git`.
-  Example use:
+#### fetch_git
+
+`fetch_git` downloads the package from a Git repository at the URL
+given as an argument. The branch `master` will be checked out by
+default; this can be overriden by providing the branch name as a second
+argument to `fetch_git`.
+
+Example use:
 
 ```shell
 fetch_git http://example.com/example.git my-neato-branch
@@ -65,11 +72,14 @@ fetch_git http://example.com/example.git my-neato-branch
 
 Build modules specify how to build the package after it is fetched:
 
-* `build_autotools`: builds the package assuming that it is laid out
-  as a standard autotools package (ie. `./configure; make; make install`).
-  Extra arguments passed to the function will be passed through to
-  `configure`.
-  Example use:
+#### build_autotools
+
+`build_autotools` builds the package assuming that it is laid out as a
+standard autotools package (ie. `./configure; make; make install`).
+Extra arguments passed to the function will be passed through to
+`configure`.
+
+Example use:
 
 ```shell
 build_autotools --disable-broken-feature
@@ -103,18 +113,24 @@ the source control repository".
 
 ### Other modules and functions
 
-* `dependencies`: Arguments provided to the function are the names
-  of other packages to install before trying to build this one.
-  Example use:
+#### dependencies
+
+Arguments provided to the `dependencies` function are the names of other
+packages to install before trying to build this one.
+
+Example use:
 
 ```shell
 dependencies other-package neato-lib
 ```
 
-* `package_group`: Specifies that this is not really a package that
-  should be built; rather, it just specifies a number of other packages
-  to build.
-  Example use:
+#### package_group
+
+`package_group` specifies that this is not really a package that
+should be built; rather, it just specifies a number of other packages
+to build.
+
+Example use:
 
 ```shell
 # File contains no other lines
