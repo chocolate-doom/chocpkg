@@ -45,14 +45,14 @@ do_check() {
 }
 
 do_fetch() {
-    error_exit "No method defined for fetching this package."
+    chocpkg::abort "No method defined for fetching this package."
 }
 
 do_build() {
-    error_exit "No method defined for building this package."
+    chocpkg::abort "No method defined for building this package."
 }
 
 do_install() {
-    error_exit "No method defined for installing this package."
+    chocpkg::abort "No method defined for installing this package."
 }
 

@@ -4,11 +4,11 @@ package_group::init() {
 }
 
 do_fetch() {
-    error_exit "Can't fetch a package group, only install it."
+    chocpkg::abort "Can't fetch a package group, only install it."
 }
 
 do_build() {
-    error_exit "Can't build a package group, only install it."
+    chocpkg::abort "Can't build a package group, only install it."
 }
 
 # We override the command functions for the install/reinstall commands, which

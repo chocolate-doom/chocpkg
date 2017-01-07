@@ -67,7 +67,7 @@ chocpkg::environment::set_package_dirs() {
             PACKAGE_BUILD_DIR="$NATIVE_BUILD_DIR/$PACKAGE_DIR_NAME"
             ;;
         *)
-            error_exit "Unknown package type $PACKAGE_TYPE"
+            chocpkg::abort "Unknown package type $PACKAGE_TYPE"
             ;;
     esac
 }
@@ -83,7 +83,7 @@ chocpkg::environment::load_package_file() {
 
     local pkg_file="$CHOCPKG_ROOT/pkgdef/$PACKAGE_NAME.sh"
     if [ ! -e "$pkg_file" ]; then
-        error_exit "Package file $PACKAGE_NAME.sh not found."
+        chocpkg::abort "Package file $PACKAGE_NAME.sh not found."
     fi
     . "$pkg_file"
 
@@ -93,7 +93,7 @@ chocpkg::environment::load_package_file() {
     fi
 
     if ! chocpkg::environment::valid_variant "$PACKAGE_VARIANT"; then
-        error_exit "Unknown variant $PACKAGE_VARIANT for $PACKAGE_NAME."
+        chocpkg::abort "Unknown variant $PACKAGE_VARIANT for $PACKAGE_NAME."
     fi
 
     # When installing a native package, all its dependencies are

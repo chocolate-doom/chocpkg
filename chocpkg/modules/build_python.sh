@@ -6,7 +6,7 @@ build_python::init() {
 do_build() {
     # TODO: Build specifying correct target type.
     python setup.py build || (
-        error_exit "Failed to build package $PACKAGE_NAME."
+        chocpkg::abort "Failed to build package $PACKAGE_NAME."
     )
 }
 
@@ -22,7 +22,7 @@ do_install() {
 
     python setup.py install "--install-purelib=$python_lib_path" \
                             "--prefix=$PACKAGE_INSTALL_DIR" || (
-        error_exit "Failed to install package $PACKAGE_NAME."
+        chocpkg::abort "Failed to install package $PACKAGE_NAME."
     )
 }
 

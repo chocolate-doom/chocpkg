@@ -107,7 +107,7 @@ chocpkg::commands::build() {
     chocpkg::environment::setup_build_environment
 
     if ! prebuild_setup; then
-        error_exit "Failed pre-build setup step for $PACKAGE_NAME."
+        chocpkg::abort "Failed pre-build setup step for $PACKAGE_NAME."
     fi
 
     do_build
