@@ -33,7 +33,6 @@ END
 basic_setup() {
     if [ -z "${CHOCPKG_ROOT:-}" ]; then
         set_chocpkg_root
-        PATH="$CHOCPKG_ROOT/chocpkg:$PATH"
     fi
 
     PACKAGES_DIR="$CHOCPKG_ROOT/packages"
@@ -49,8 +48,8 @@ basic_setup() {
 
 basic_setup
 
-. chocpkg_functions.sh
-. chocpkg_modules.sh
+. "$CHOCPKG_ROOT/chocpkg/chocpkg_functions.sh"
+. "$CHOCPKG_ROOT/chocpkg/chocpkg_modules.sh"
 . "$CHOCPKG_ROOT/buildenv.sh"
 
 description() {
@@ -212,6 +211,11 @@ setup_build_environment() {
     if [ "$PACKAGE_TYPE" = "target" ]; then
         PYTHONPREFIXPATHS="$INSTALL_DIR/lib/chocpkg-python:$PYTHONPATH"
     fi
+}
+
+# Recursive function that wraps the main script.
+chocpkg() {
+    "$0" "$@"
 }
 
 install_dependencies() {
