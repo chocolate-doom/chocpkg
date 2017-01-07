@@ -8,7 +8,7 @@ check_pkgconfig::init() {
 }
 
 # Function that returns true if the package is installed.
-check_installed() {
+do_check() {
     if ! have_tool pkg-config; then
         error_exit "pkg-config not installed; please run:" \
                    "    chocpkg install native:pkg-config"

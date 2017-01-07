@@ -84,7 +84,7 @@ chocpkg::commands::install_dependencies() {
 chocpkg::commands::installed() {
     chocpkg::commands::configure_for_package "$@"
     chocpkg::environment::setup_build_environment
-    check_installed
+    do_check
 }
 
 chocpkg::commands::fetch() {

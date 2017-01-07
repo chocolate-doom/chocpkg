@@ -39,7 +39,7 @@ fetch_hg() {
 
 # Default implementations of functions, as fallbacks:
 
-check_installed() {
+do_check() {
     # Don't know - assume not, and then we'll always install.
     false
 }
