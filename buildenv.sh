@@ -31,7 +31,9 @@ if [ $(uname) = "Darwin" ]; then
     MACOSX_DEPLOYMENT_TARGET=10.7
     export LDFLAGS MACOSX_DEPLOYMENT_TARGET
 else
-    # TODO: explain what this does
+    # Include $INSTALL_DIR/lib in the list of paths that is searched
+    # when looking for DLLs. This allows built binaries to be run
+    # without needing to set LD_LIBRARY_PATH every time.
     LDFLAGS="-Wl,-rpath -Wl,$INSTALL_DIR/lib ${LDFLAGS:-}"
     export LDFLAGS
 fi
