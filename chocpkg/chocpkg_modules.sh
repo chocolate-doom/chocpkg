@@ -13,6 +13,10 @@ build_autotools() {
     install_module build_autotools "$@"
 }
 
+build_python() {
+    install_module build_python "$@"
+}
+
 check_pkgconfig() {
     install_module check_pkgconfig "$@"
 }

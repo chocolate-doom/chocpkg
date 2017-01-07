@@ -205,6 +205,13 @@ setup_build_environment() {
     if $IS_CROSS_COMPILE && [ "$PACKAGE_TYPE" = "target" ]; then
         export PKG_CONFIG_LIBDIR=
     fi
+
+    # Python modules get installed into a special chocpkg-specific
+    # directory; see the build_python module for more details.
+    export PYTHONPATH="$NATIVE_INSTALL_DIR/lib/chocpkg-python:${PYTHONPATH:-}"
+    if [ "$PACKAGE_TYPE" = "target" ]; then
+        PYTHONPREFIXPATHS="$INSTALL_DIR/lib/chocpkg-python:$PYTHONPATH"
+    fi
 }
 
 install_dependencies() {
