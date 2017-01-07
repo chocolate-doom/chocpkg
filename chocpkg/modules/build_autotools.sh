@@ -3,7 +3,7 @@ build_autotools::init() {
     PACKAGE_CONFIGURE_OPTS="$@"
 }
 
-need_autoreconf() {
+build_autotools::need_autoreconf() {
     if [ -e configure.in ] && [ ! -e configure.ac ]; then
         local configure_ac=configure.in
     else
@@ -25,7 +25,7 @@ do_build() {
 
     # If we're checking out from a version control repository, we may need
     # to run the autotools commands first to generate the configure script.
-    if need_autoreconf; then
+    if build_autotools::need_autoreconf; then
         if ! chocpkg::have_tool autoreconf; then
             chocpkg::abort "autotools not installed; please run:" \
                            "    chocpkg install native:autotools"

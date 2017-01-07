@@ -7,7 +7,7 @@ fetch_download::init() {
     IS_TAR_BOMB=false
 }
 
-check_sha256_digest() {
+fetch_download::check_sha256_digest() {
     local filename="$1" dldigest
     dldigest=$(chocpkg::sha256_digest "$filename")
     # For development purposes only.
@@ -23,19 +23,19 @@ check_sha256_digest() {
     fi
 }
 
-download_package_file() {
+fetch_download::download_package_file() {
     local dlfile="$PACKAGES_DIR/$PACKAGE_FILENAME"
     if [ ! -e "$dlfile" ]; then
         local tmpfile="$dlfile.part"
         if ! chocpkg::curl "$PACKAGE_URL" > $tmpfile; then
             chocpkg::abort "Failed to download $PACKAGE_URL"
         fi
-        check_sha256_digest "$tmpfile"
+        fetch_download::check_sha256_digest "$tmpfile"
         mv "$tmpfile" "$dlfile"
     fi
 }
 
-extract_package_file() {
+fetch_download::extract_package_file() {
     local dlfile="$PACKAGES_DIR/$PACKAGE_FILENAME"
     # Well-formed tar files contain a single directory that matches their
     # filename, but we support an override for badly-formed tar files too,
@@ -54,7 +54,7 @@ extract_package_file() {
 }
 
 do_fetch() {
-    download_package_file
-    extract_package_file
+    fetch_download::download_package_file
+    fetch_download::extract_package_file
 }
 
