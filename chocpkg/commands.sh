@@ -217,7 +217,11 @@ END
 }
 
 chocpkg::commands::command() {
-    local command="${1:-NONE}"; shift
+    local command=NONE
+    if [ $# -gt 0 ]; then
+        command="$1"
+	shift
+    fi
     case "$command" in
         packages)
             chocpkg::commands::packages
