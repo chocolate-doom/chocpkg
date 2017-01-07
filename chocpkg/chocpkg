@@ -48,8 +48,8 @@ basic_setup() {
 
 basic_setup
 
-. "$CHOCPKG_ROOT/chocpkg/chocpkg_functions.sh"
-. "$CHOCPKG_ROOT/chocpkg/chocpkg_modules.sh"
+. "$CHOCPKG_ROOT/chocpkg/functions.sh"
+. "$CHOCPKG_ROOT/chocpkg/modules.sh"
 . "$CHOCPKG_ROOT/buildenv.sh"
 
 description() {
