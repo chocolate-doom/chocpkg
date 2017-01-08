@@ -86,20 +86,7 @@ chocpkg::commands::install_dependencies() {
     done
 }
 
-chocpkg::commands::installed() {
-    chocpkg::commands::configure_for_package "$@"
-    chocpkg::environment::setup_build_environment
-    do_check
-}
-
-chocpkg::commands::fetch() {
-    chocpkg::commands::configure_for_package "$@"
-
-    do_fetch
-}
-
-chocpkg::commands::build() {
-    chocpkg::commands::configure_for_package "$@"
+chocpkg::commands::hook_build() {
     chocpkg::commands::install_dependencies
     chocpkg fetch $(chocpkg::commands::full_package_name)
 
@@ -118,26 +105,77 @@ chocpkg::commands::build() {
     do_build
 }
 
-chocpkg::commands::reinstall() {
-    chocpkg::commands::configure_for_package "$@"
+chocpkg::commands::hook_dependencies() {
+    local i
+    for i in "${!DEPENDENCIES[@]}"; do
+        local dep="${DEPENDENCIES[$i]}"
+        echo "$dep"
+        chocpkg dependencies "$dep"
+    done | sort | uniq
+}
+
+chocpkg::commands::hook_fetch() {
+    do_fetch
+}
+
+chocpkg::commands::hook_install() {
+    # Already installed? Don't install again.
+    if ! chocpkg installed "$(chocpkg::commands::full_package_name)"; then
+        chocpkg reinstall "$(chocpkg::commands::full_package_name)"
+    fi
+}
+
+chocpkg::commands::hook_installed() {
+    chocpkg::environment::setup_build_environment
+    do_check
+}
+
+chocpkg::commands::hook_reinstall() {
     chocpkg build $(chocpkg::commands::full_package_name)
     cd "$PACKAGE_BUILD_DIR"
     do_install
 }
 
-chocpkg::commands::shell() {
-    chocpkg::commands::configure_for_package "$@"
+chocpkg::commands::hook_shell() {
     chocpkg::environment::setup_build_environment
     exec $SHELL
 }
 
+# All package-specific commands are hidden behind hook functions that allows
+# packages to redefine them if necessary.
+chocpkg::commands::build() {
+    chocpkg::commands::configure_for_package "$@"
+    chocpkg::commands::hook_build
+}
+
+chocpkg::commands::dependencies() {
+    chocpkg::commands::configure_for_package "$@"
+    chocpkg::commands::hook_dependencies
+}
+
+chocpkg::commands::fetch() {
+    chocpkg::commands::configure_for_package "$@"
+    chocpkg::commands::hook_fetch
+}
+
 chocpkg::commands::install() {
     chocpkg::commands::configure_for_package "$@"
+    chocpkg::commands::hook_install
+}
 
-    # Already installed? Don't install again.
-    if ! chocpkg installed "$(chocpkg::commands::full_package_name)"; then
-        chocpkg reinstall "$(chocpkg::commands::full_package_name)"
-    fi
+chocpkg::commands::installed() {
+    chocpkg::commands::configure_for_package "$@"
+    chocpkg::commands::hook_installed
+}
+
+chocpkg::commands::reinstall() {
+    chocpkg::commands::configure_for_package "$@"
+    chocpkg::commands::hook_reinstall
+}
+
+chocpkg::commands::shell() {
+    chocpkg::commands::configure_for_package "$@"
+    chocpkg::commands::hook_shell
 }
 
 chocpkg::commands::packages() {
@@ -186,15 +224,6 @@ chocpkg::commands::info() {
         chocpkg::commands::configure_for_package "$@"
         echo "$(chocpkg::commands::package_info)"
     fi
-}
-
-chocpkg::commands::dependencies() {
-    local i
-    for i in "${!DEPENDENCIES[@]}"; do
-        local dep="${DEPENDENCIES[$i]}"
-        echo "$dep"
-        chocpkg dependencies "$dep"
-    done | sort | uniq
 }
 
 chocpkg::commands::usage() {
