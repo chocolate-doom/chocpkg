@@ -73,6 +73,11 @@ chocpkg::commands::configure_for_package() {
     . "$CHOCPKG_ROOT/chocpkg/environment.sh"
 }
 
+# Print the fully-qualified version of the package's name.
+chocpkg::commands::full_package_name() {
+    printf "%s:%s/%s" "$PACKAGE_TYPE" "$PACKAGE_NAME" "$PACKAGE_VARIANT"
+}
+
 chocpkg::commands::install_dependencies() {
     local i
     for i in "${!DEPENDENCIES[@]}"; do
@@ -96,7 +101,7 @@ chocpkg::commands::fetch() {
 chocpkg::commands::build() {
     chocpkg::commands::configure_for_package "$@"
     chocpkg::commands::install_dependencies
-    chocpkg fetch "$PACKAGE_NAME"
+    chocpkg fetch $(chocpkg::commands::full_package_name)
 
     echo =======================================================
     echo "Building $PACKAGE_NAME..."
@@ -115,7 +120,7 @@ chocpkg::commands::build() {
 
 chocpkg::commands::reinstall() {
     chocpkg::commands::configure_for_package "$@"
-    chocpkg build "$PACKAGE_NAME"
+    chocpkg build $(chocpkg::commands::full_package_name)
     cd "$PACKAGE_BUILD_DIR"
     do_install
 }
@@ -130,8 +135,8 @@ chocpkg::commands::install() {
     chocpkg::commands::configure_for_package "$@"
 
     # Already installed? Don't install again.
-    if ! chocpkg installed "$1"; then
-        chocpkg reinstall "$1"
+    if ! chocpkg installed "$(chocpkg::commands::full_package_name)"; then
+        chocpkg reinstall "$(chocpkg::commands::full_package_name)"
     fi
 }
 
