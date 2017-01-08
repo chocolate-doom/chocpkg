@@ -31,15 +31,6 @@ chocpkg::commands::hook_reinstall() {
     done
 }
 
-chocpkg::commands::hook_dependencies() {
-    local i
-    for i in "${!DEPENDENCIES[@]}"; do
-        local package="${DEPENDENCIES[$i]}"
-        echo "$package"
-        chocpkg dependencies "$package"
-    done | sort | uniq
-}
-
 # Package group is installed if all its packages are installed.
 chocpkg::commands::hook_installed() {
     local i

@@ -105,15 +105,6 @@ chocpkg::commands::hook_build() {
     do_build
 }
 
-chocpkg::commands::hook_dependencies() {
-    local i
-    for i in "${!DEPENDENCIES[@]}"; do
-        local dep="${DEPENDENCIES[$i]}"
-        echo "$dep"
-        chocpkg dependencies "$dep"
-    done | sort | uniq
-}
-
 chocpkg::commands::hook_fetch() {
     do_fetch
 }
@@ -148,11 +139,6 @@ chocpkg::commands::build() {
     chocpkg::commands::hook_build
 }
 
-chocpkg::commands::dependencies() {
-    chocpkg::commands::configure_for_package "$@"
-    chocpkg::commands::hook_dependencies
-}
-
 chocpkg::commands::fetch() {
     chocpkg::commands::configure_for_package "$@"
     chocpkg::commands::hook_fetch
@@ -176,6 +162,16 @@ chocpkg::commands::reinstall() {
 chocpkg::commands::shell() {
     chocpkg::commands::configure_for_package "$@"
     chocpkg::commands::hook_shell
+}
+
+chocpkg::commands::dependencies() {
+    chocpkg::commands::configure_for_package "$@"
+    local i
+    for i in "${!DEPENDENCIES[@]}"; do
+        local dep="${DEPENDENCIES[$i]}"
+        echo "$dep"
+        chocpkg dependencies "$dep"
+    done | sort | uniq
 }
 
 chocpkg::commands::packages() {
