@@ -30,6 +30,10 @@ if [ $(uname) = "Darwin" ]; then
     LDFLAGS="-lobjc ${LDFLAGS:-}"
     MACOSX_DEPLOYMENT_TARGET=10.7
     export LDFLAGS MACOSX_DEPLOYMENT_TARGET
+elif [[ "$BUILD_HOST" =~ mingw ]]; then
+    # MingW builds need the -static-libgcc linker option, otherwise we
+    # will depend on an unnecessary DLL, libgcc_s_sjlj-1.dll:
+    LDFLAGS="-static-libgcc ${LDFLAGS:-}"
 else
     # Include $INSTALL_DIR/lib in the list of paths that is searched
     # when looking for DLLs. This allows built binaries to be run
