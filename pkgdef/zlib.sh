@@ -10,7 +10,9 @@ do_build() {
     if [ ! -z "$BUILD_HOST" ]; then
         export CC="$BUILD_HOST-gcc"
     fi
-    ./configure --prefix="$PACKAGE_INSTALL_DIR" --static
+    # Don't include -lc when building libraries. It's unclear why zlib does
+    # this by default, but it certainly doesn't work for Mingw compiles.
+    LDSHAREDLIBC="" ./configure --prefix="$PACKAGE_INSTALL_DIR"
     make
 }
 
