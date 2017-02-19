@@ -11,7 +11,15 @@ fetch_git::init() {
 do_fetch() {
     if [ -e "$PACKAGE_BUILD_DIR/.git" ]; then
         cd "$PACKAGE_BUILD_DIR"
-        git pull
+        # Assume we're tracking an upstream branch, and to be cautious,
+        # don't ever perform or commit merges. If a merge needs to be made,
+        # let the user resolve the problem themselves.
+        git pull --ff-only || chocpkg::abort \
+            "Failed to cleanly 'git pull' from upstream. You may need to" \
+            "manually resolve merge conflicts with local changes, eg." \
+            "" \
+            "    cd $PACKAGE_BUILD_DIR" \
+            "    git pull"
     else
         git clone -b "$GIT_BRANCH" "$GIT_URL" "$PACKAGE_BUILD_DIR"
     fi
