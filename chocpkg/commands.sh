@@ -125,6 +125,12 @@ chocpkg::commands::hook_reinstall() {
     chocpkg build $(chocpkg::commands::full_package_name)
     cd "$PACKAGE_BUILD_DIR"
     do_install
+    if ! chocpkg installed $(chocpkg::commands::full_package_name); then
+        (echo
+         echo "Package $PACKAGE_NAME install check is false after install."
+         echo "Double check that the check module is defined correctly."
+         echo) >&2
+    fi
 }
 
 chocpkg::commands::hook_shell() {
