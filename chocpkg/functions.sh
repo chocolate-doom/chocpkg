@@ -1,7 +1,11 @@
 # Recursive function that wraps the main script. Used by some packages to
 # conditionally do stuff based on whether other packages are installed.
 chocpkg() {
-    "$0" "$@"
+    # Path to program is hard-coded here; we do not use $0 since the
+    # program may be invoked as `./chocpkg/chocpkg` - in which case, if
+    # the working directory has been changed, $0 no longer points to the
+    # right location to re-invoke the script.
+    "$CHOCPKG_ROOT/chocpkg/chocpkg" "$@"
 }
 
 # Determine if a given program is in the PATH.
