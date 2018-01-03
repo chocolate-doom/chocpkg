@@ -23,7 +23,8 @@ MAKE_OPTS=
 # By default the stable variant of packages is built unless otherwise
 # requested. If a package name appears inside this array, the "latest"
 # variant of that package (ie. source control HEAD) is built instead.
-LATEST_PACKAGES=(chocolate-doom)
+LATEST_PACKAGES=()
+#LATEST_PACKAGES+=(chocolate-doom)
 #LATEST_PACKAGES+=(SDL2 SDL2_image SDL2_mixer SDL2_net)
 
 if [ $(uname) = "Darwin" ]; then
