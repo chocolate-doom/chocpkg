@@ -32,7 +32,10 @@ if [ -z "${CHOCPKG_ROOT:-}" ]; then
     chocpkg::set_root
 fi
 
+# Ordering here matters, since we rely on basic setup of standard variables
+# in commands.sh for some of the evaluation in buildenv.sh:
 . "$CHOCPKG_ROOT/chocpkg/commands.sh"
+. "$CHOCPKG_ROOT/buildenv.sh"
 
 chocpkg::commands::command "$@"
 
