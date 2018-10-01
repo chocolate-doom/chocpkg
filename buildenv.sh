@@ -27,7 +27,7 @@ LATEST_PACKAGES=()
 #LATEST_PACKAGES+=(chocolate-doom)
 #LATEST_PACKAGES+=(SDL2 SDL2_image SDL2_mixer SDL2_net)
 
-if [ $(uname) = "Darwin" ]; then
+if [[ "$BUILD_HOST" = "" ]] && [ $(uname) = "Darwin" ]; then
     LDFLAGS="-lobjc ${LDFLAGS:-}"
     MACOSX_DEPLOYMENT_TARGET=10.7
     export LDFLAGS MACOSX_DEPLOYMENT_TARGET
