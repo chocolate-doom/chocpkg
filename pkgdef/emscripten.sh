@@ -10,7 +10,7 @@ make_wrapper_script() {
     local toolname emtoolname path
     toolname="$1"
     emtoolname="$2"
-    path="$PACKAGE_INSTALL_DIR/bin/asmjs-unknown-emscripten-$toolname"
+    path="$PACKAGE_INSTALL_DIR/bin/asmjs-local-emscripten-$toolname"
     (echo "#!/bin/bash"
      echo "(cd $PACKAGE_BUILD_DIR; . ./emsdk_env.sh) >/dev/null"
      echo "export EMCC_CFLAGS='-s ERROR_ON_MISSING_LIBRARIES=1'"
@@ -20,7 +20,7 @@ make_wrapper_script() {
 
 # Emscripten is a weird beast, and wants us to use all its weird tools
 # (emconfigure, emmake, etc.). Instead of that, we define a "fake" system
-# named asmjs-unknown-emscripten and create wrapper scripts for all the
+# named asmjs-local-emscripten and create wrapper scripts for all the
 # necessary compile tools. Then we can build like any other normal
 # cross-compile system.
 do_install() {
@@ -32,5 +32,5 @@ do_install() {
     make_wrapper_script ranlib emranlib
 }
 
-check_tool asmjs-unknown-emscripten-gcc
+check_tool asmjs-local-emscripten-gcc
 

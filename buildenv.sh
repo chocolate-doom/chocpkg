@@ -8,7 +8,7 @@ BUILD_HOST=
 
 # Build host to use for Emscripten builds. Uncomment and then run
 # `chocpkg install native:emscripten`.
-#BUILD_HOST=asmjs-unknown-emscripten
+#BUILD_HOST=asmjs-local-emscripten
 
 # If we're cross-compiling to a different platform, this should be set
 # to true. We initialize this based on whether BUILD_HOST has been set.
