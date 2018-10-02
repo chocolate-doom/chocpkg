@@ -11,6 +11,7 @@ make_wrapper_script() {
     toolname="$1"
     emtoolname="$2"
     path="$PACKAGE_INSTALL_DIR/bin/asmjs-local-emscripten-$toolname"
+    mkdir -p "$PACKAGE_INSTALL_DIR/bin"
     (echo "#!/bin/bash"
      echo "(cd $PACKAGE_BUILD_DIR; . ./emsdk_env.sh) >/dev/null"
      echo "export EMCC_CFLAGS='-s ERROR_ON_MISSING_LIBRARIES=1'"
