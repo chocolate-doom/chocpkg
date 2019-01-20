@@ -8,7 +8,8 @@ do_check() {
   # TODO: A better way to choose compiler command?
   ${CC:-gcc} \
       -l$PACKAGE_INSTALLED_LIB $LDFLAGS \
-      -o/dev/null \
-      -x c <( echo "int main() {}")
+      -o$PACKAGE_INSTALL_DIR/__install_check \
+      -x c <( echo "int main() {}") \
+      2>/dev/null
 }
 
