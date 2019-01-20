@@ -21,6 +21,10 @@ check_pkgconfig() {
     install_module check_pkgconfig "$@"
 }
 
+check_library() {
+    install_module check_library "$@"
+}
+
 check_tool() {
     install_module check_tool "$@"
 }
