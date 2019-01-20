@@ -122,6 +122,7 @@ chocpkg::commands::hook_installed() {
 
 chocpkg::commands::hook_reinstall() {
     chocpkg build $(chocpkg::commands::full_package_name)
+    chocpkg::environment::setup_build_environment
     cd "$PACKAGE_BUILD_DIR"
     do_install
     if ! chocpkg installed $(chocpkg::commands::full_package_name); then

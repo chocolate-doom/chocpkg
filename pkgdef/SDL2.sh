@@ -20,6 +20,11 @@ if [ $(uname) = "Cygwin" ] || [[ "$BUILD_HOST" = *mingw* ]]; then
     config_options+=" --disable-directx"
 fi
 
+# Disable assembly to avoid depending on SIMD stuff.
+if [[ "$BUILD_HOST" = *-*-emscripten ]]; then
+    config_options+=" --disable-assembly"
+fi
+
 # For SDL, we do an out-of-tree build in a subdirectory, since the configure
 # script can complain otherwise.
 AUTOTOOLS_BUILD_PATH=build-artifacts

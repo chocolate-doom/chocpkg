@@ -6,6 +6,10 @@ BUILD_HOST=
 # An example of how to cross-compile to mingw32 for Windows builds:
 #BUILD_HOST=i686-w64-mingw32
 
+# Build host to use for Emscripten builds. Uncomment and then run
+# `chocpkg install native:emscripten`.
+#BUILD_HOST=asmjs-local-emscripten
+
 # If we're cross-compiling to a different platform, this should be set
 # to true. We initialize this based on whether BUILD_HOST has been set.
 if [ "$BUILD_HOST" != "" ]; then
@@ -27,7 +31,7 @@ LATEST_PACKAGES=()
 #LATEST_PACKAGES+=(chocolate-doom)
 #LATEST_PACKAGES+=(SDL2 SDL2_image SDL2_mixer SDL2_net)
 
-if [ $(uname) = "Darwin" ]; then
+if [[ "$BUILD_HOST" = "" ]] && [ $(uname) = "Darwin" ]; then
     LDFLAGS="-lobjc ${LDFLAGS:-}"
     MACOSX_DEPLOYMENT_TARGET=10.7
     export LDFLAGS MACOSX_DEPLOYMENT_TARGET
