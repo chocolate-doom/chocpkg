@@ -9,8 +9,8 @@ variant latest fetch_hg https://hg.libsdl.org/SDL_mixer
 
 # Disable dependencies on external libraries for sound file formats:
 config_options="
-    --disable-music-mod --disable-music-mp3
-    --disable-music-flac-shared --disable-music-ogg-shared
+    --disable-music-mod --disable-music-flac-shared
+    --disable-music-ogg-shared
 "
 
 # ...except ones we have installed:
@@ -26,6 +26,12 @@ if chocpkg installed ${PACKAGE_TYPE}:fluidsynth; then
     config_options+=" --enable-music-midi-fluidsynth"
 else
     config_options+=" --disable-music-midi-fluidsynth"
+fi
+
+if chocpkg installed ${PACKAGE_TYPE}:libmad; then
+    config_options+=" --enable-music-mp3 --enable-music-mp3-mad-gpl"
+else
+    config_options+=" --disable-music-mp3 --disable-music-mp3-mad-gpl"
 fi
 
 build_autotools $config_options
