@@ -3,8 +3,8 @@ dependencies SDL2
 check_pkgconfig SDL2_mixer
 
 variant stable fetch_download \
-    https://www.libsdl.org/projects/SDL_mixer/release/SDL2_mixer-2.0.1.tar.gz \
-    5a24f62a610249d744cbd8d28ee399d8905db7222bf3bdbc8a8b4a76e597695f
+    https://www.libsdl.org/projects/SDL_mixer/release/SDL2_mixer-2.0.4.tar.gz \
+    b4cf5a382c061cd75081cf246c2aa2f9df8db04bdda8dcdc6b6cca55bede2419
 variant latest fetch_hg https://hg.libsdl.org/SDL_mixer
 
 # Disable dependencies on external libraries for sound file formats:
