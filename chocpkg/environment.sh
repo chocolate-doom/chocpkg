@@ -7,6 +7,8 @@
 
 . "$CHOCPKG_ROOT/chocpkg/modules.sh"
 
+CHOCPKG_MIRRORS=https://raw.githubusercontent.com/chocolate-doom/chocpkg-mirrors/master
+
 description() {
     PACKAGE_DESCRIPTION="$*"
 }
