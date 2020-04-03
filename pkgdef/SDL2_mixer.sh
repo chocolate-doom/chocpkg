@@ -11,6 +11,7 @@ variant latest fetch_hg https://hg.libsdl.org/SDL_mixer
 config_options="
     --disable-music-mod --disable-music-flac-shared
     --disable-music-ogg-shared
+    --disable-music-mp3-mpg123-shared
 "
 
 # ...except ones we have installed:
@@ -28,7 +29,9 @@ else
     config_options+=" --disable-music-midi-fluidsynth"
 fi
 
-if chocpkg installed ${PACKAGE_TYPE}:libmad; then
+if chocpkg installed ${PACKAGE_TYPE}:libmpg123; then
+    config_options+=" --enable-music-mp3 --disable-music-mp3-mad-gpl --enable-music-mp3-mpg123"
+elif chocpkg installed ${PACKAGE_TYPE}:libmad; then
     config_options+=" --enable-music-mp3 --enable-music-mp3-mad-gpl"
 else
     config_options+=" --disable-music-mp3 --disable-music-mp3-mad-gpl"
