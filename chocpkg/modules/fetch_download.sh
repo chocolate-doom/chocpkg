@@ -3,7 +3,7 @@ fetch_download::init() {
     PACKAGE_URL=$1
     PACKAGE_SHA256_DIGEST=$2
     PACKAGE_FILENAME=$(basename "$PACKAGE_URL")
-    PACKAGE_DIR_NAME="${PACKAGE_FILENAME/.tar.gz/}"
+    PACKAGE_DIR_NAME="${PACKAGE_FILENAME/%.tar.*/}"
     IS_TAR_BOMB=false
 }
 
@@ -35,6 +35,21 @@ fetch_download::download_package_file() {
     fi
 }
 
+fetch_download::decompress() {
+    local filename="$1"
+    case "$filename" in
+        *.gz)
+            gunzip < $filename
+            ;;
+        *.bz2)
+            bunzip2 < $filename
+            ;;
+        *)
+            chocpkg::abort "unknown compression format for filename $filename"
+            ;;
+    esac
+}
+
 fetch_download::extract_package_file() {
     local dlfile="$PACKAGES_DIR/$PACKAGE_FILENAME"
     # Well-formed tar files contain a single directory that matches their
@@ -47,7 +62,7 @@ fetch_download::extract_package_file() {
         local parent_dir=$(dirname "$PACKAGE_BUILD_DIR")
         cd "$parent_dir"
     fi
-    (gunzip < "$dlfile" | tar -x) || (
+    (fetch_download::decompress "$dlfile" | tar -x) || (
         mv "$dlfile" "$dlfile.bad"
         chocpkg::abort "Failed to extract $PACKAGE_FILENAME: bad download?"
     )
