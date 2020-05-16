@@ -39,16 +39,18 @@ chocpkg::abort() {
 
 chocpkg::sha256() {
     if chocpkg::have_tool shasum; then
-        shasum -a 256 "$@"
+        shasum -a 256 -b "$@"
     elif chocpkg::have_tool sha256sum; then
-        sha256sum "$@"
+        sha256sum -b "$@"
+    elif chocpkg::have_tool sha256; then
+        sha256 -q "$@"
     else
         chocpkg::abort "No sha256 tool installed."
     fi
 }
 
 chocpkg::sha256_digest() {
-    chocpkg::sha256 -b "$@" | while read digest rest; do
+    chocpkg::sha256 "$@" | while read digest rest; do
         echo "$digest"
     done
 }
