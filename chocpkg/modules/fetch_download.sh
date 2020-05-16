@@ -62,7 +62,7 @@ fetch_download::extract_package_file() {
         local parent_dir=$(dirname "$PACKAGE_BUILD_DIR")
         cd "$parent_dir"
     fi
-    (fetch_download::decompress "$dlfile" | tar -x) || (
+    (fetch_download::decompress "$dlfile" | tar -x -f -) || (
         mv "$dlfile" "$dlfile.bad"
         chocpkg::abort "Failed to extract $PACKAGE_FILENAME: bad download?"
     )
