@@ -7,4 +7,4 @@ variant stable fetch_download $CHOCPKG_MIRRORS/flac-1.3.1.tar.gz \
 variant latest fetch_git https://github.com/xiph/flac.git master
 
 # Compile problems :(
-build_autotools --disable-asm-optimizations
+build_autotools --disable-asm-optimizations --disable-cpplibs
