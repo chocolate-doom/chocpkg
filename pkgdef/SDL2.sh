@@ -4,7 +4,9 @@ check_pkgconfig sdl2
 variant stable fetch_download \
     https://www.libsdl.org/release/SDL2-2.0.12.tar.gz \
     349268f695c02efbc9b9148a70b85e58cefbbf704abd3e91be654db7f1e2c863
-variant latest fetch_hg https://hg.libsdl.org/SDL/
+GIT_URL=https://github.com/libsdl-org/SDL.git
+variant stable_git fetch_git $GIT_URL release-2.0.12
+variant latest fetch_git $GIT_URL main
 
 config_options=
 
