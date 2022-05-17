@@ -1,5 +1,5 @@
 description "Emscripten build environment"
-fetch_git https://github.com/juj/emsdk.git
+fetch_git https://github.com/juj/emsdk.git main
 
 do_build() {
     ./emsdk install latest
@@ -29,7 +29,7 @@ do_install() {
     make_wrapper_script gcc    emcc
     make_wrapper_script g++    em++
     make_wrapper_script ld     emcc
-    make_wrapper_script nm     llvm-nm
+    make_wrapper_script nm     emnm
     make_wrapper_script ranlib emranlib
 }
 
