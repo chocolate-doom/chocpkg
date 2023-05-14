@@ -2,10 +2,10 @@ description "Simple DirectMedia Layer"
 check_pkgconfig sdl2
 
 variant stable fetch_download \
-    https://www.libsdl.org/release/SDL2-2.0.12.tar.gz \
-    349268f695c02efbc9b9148a70b85e58cefbbf704abd3e91be654db7f1e2c863
+    https://www.libsdl.org/release/SDL2-2.26.5.tar.gz \
+    ad8fea3da1be64c83c45b1d363a6b4ba8fd60f5bde3b23ec73855709ec5eabf7
 GIT_URL=https://github.com/libsdl-org/SDL.git
-variant stable_git fetch_git $GIT_URL release-2.0.12
+variant stable_git fetch_git $GIT_URL release-2.26.5
 variant latest fetch_git $GIT_URL SDL2
 
 config_options=
