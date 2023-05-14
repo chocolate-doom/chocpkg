@@ -60,7 +60,7 @@ chocpkg::curl() {
     url=$1
 
     if chocpkg::have_tool curl; then
-        curl "$url"
+        curl -L "$url"
         return
     fi
 
