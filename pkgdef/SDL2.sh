@@ -16,12 +16,6 @@ if [ $(uname) = "Darwin" ]; then
     config_options+=" --disable-video-x11"
 fi
 
-# When targeting Windows, we need to install the directx headers first.
-if [ $(uname) = "Cygwin" ] || [[ "$BUILD_HOST" = *mingw* ]]; then
-    dependencies directx-devel
-    config_options+=" --disable-directx"
-fi
-
 # Disable assembly to avoid depending on SIMD stuff.
 if [[ "$BUILD_HOST" = *-*-emscripten ]]; then
     config_options+=" --disable-assembly"
