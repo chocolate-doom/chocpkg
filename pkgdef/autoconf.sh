@@ -1,5 +1,5 @@
 description "Scripts for generating configure scripts"
 check_tool autoconf
-fetch_download https://ftp.gnu.org/gnu/autoconf/autoconf-2.69.tar.gz \
-               954bd69b391edc12d6a4a51a2dd1476543da5c6bbf05a95b59dc0dd6fd4c2969
+fetch_download https://ftp.gnu.org/gnu/autoconf/autoconf-2.71.tar.gz \
+               431075ad0bf529ef13cb41e9042c542381103e80015686222b8a9d4abef42a1c
 build_autotools
