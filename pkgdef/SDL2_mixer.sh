@@ -7,7 +7,7 @@ variant stable fetch_download \
     b4cf5a382c061cd75081cf246c2aa2f9df8db04bdda8dcdc6b6cca55bede2419
 GIT_URL=https://github.com/libsdl-org/SDL_mixer.git
 variant stable_git fetch_git $GIT_URL release-2.0.4
-variant latest fetch_git $GIT_URL main
+variant latest fetch_git $GIT_URL SDL2
 
 # Disable dependencies on external libraries for sound file formats:
 config_options="
