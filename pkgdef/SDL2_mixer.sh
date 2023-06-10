@@ -11,17 +11,17 @@ variant latest fetch_git $GIT_URL SDL2
 
 # Disable dependencies on external libraries for sound file formats:
 config_options="
-    --disable-music-mod --disable-music-flac-shared
-    --disable-music-ogg-shared
+    --disable-music-mod --disable-music-flac-libflac-shared
+    --disable-music-ogg-vorbis-shared --disable-music-ogg-tremor-shared
     --disable-music-mp3-mpg123-shared
 "
 
 # ...except ones we have installed:
-if ! chocpkg installed ${PACKAGE_TYPE}:flac; then
-    config_options+=" --disable-music-flac"
+if chocpkg installed ${PACKAGE_TYPE}:flac; then
+    config_options+=" --enable-music-flac-libflac --disable-music-flac-drflac"
 fi
-if ! chocpkg installed ${PACKAGE_TYPE}:libogg; then
-    config_options+=" --disable-music-ogg"
+if chocpkg installed ${PACKAGE_TYPE}:libogg; then
+    config_options+=" --enable-music-ogg-vorbis --disable-music-ogg-stb"
 fi
 
 # FluidSynth, if we have it.
@@ -32,11 +32,7 @@ else
 fi
 
 if chocpkg installed ${PACKAGE_TYPE}:libmpg123; then
-    config_options+=" --enable-music-mp3 --disable-music-mp3-mad-gpl --enable-music-mp3-mpg123"
-elif chocpkg installed ${PACKAGE_TYPE}:libmad; then
-    config_options+=" --enable-music-mp3 --enable-music-mp3-mad-gpl"
-else
-    config_options+=" --disable-music-mp3 --disable-music-mp3-mad-gpl"
+    config_options+=" --enable-music-mp3-mpg123 --disable-music-mp3-drmp3"
 fi
 
 build_autotools $config_options
