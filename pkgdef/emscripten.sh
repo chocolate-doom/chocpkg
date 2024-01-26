@@ -10,7 +10,7 @@ make_wrapper_script() {
     local toolname emtoolname path
     toolname="$1"
     emtoolname="$2"
-    path="$PACKAGE_INSTALL_DIR/bin/asmjs-local-emscripten-$toolname"
+    path="$PACKAGE_INSTALL_DIR/bin/wasm32-unknown-emscripten-$toolname"
     mkdir -p "$PACKAGE_INSTALL_DIR/bin"
     (echo "#!/bin/bash"
      echo ". $PACKAGE_BUILD_DIR/emsdk_env.sh >/dev/null"
@@ -21,7 +21,7 @@ make_wrapper_script() {
 
 # Emscripten is a weird beast, and wants us to use all its weird tools
 # (emconfigure, emmake, etc.). Instead of that, we define a "fake" system
-# named asmjs-local-emscripten and create wrapper scripts for all the
+# named wasm32-unknown-emscripten and create wrapper scripts for all the
 # necessary compile tools. Then we can build like any other normal
 # cross-compile system.
 do_install() {
@@ -33,5 +33,5 @@ do_install() {
     make_wrapper_script ranlib emranlib
 }
 
-check_tool asmjs-local-emscripten-gcc
+check_tool wasm32-unknown-emscripten-gcc
 
