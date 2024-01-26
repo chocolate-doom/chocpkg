@@ -1,9 +1,13 @@
 description "Emscripten build environment"
-fetch_git https://github.com/juj/emsdk.git main
+
+do_fetch() {
+    check_tool emcc
+    mkdir -p "$PACKAGE_BUILD_DIR"
+    echo "This is just a dummy directory" > "$PACKAGE_BUILD_DIR/README"
+}
 
 do_build() {
-    ./emsdk install latest
-    ./emsdk activate latest
+    true
 }
 
 make_wrapper_script() {
@@ -31,6 +35,8 @@ do_install() {
     make_wrapper_script ld     emcc
     make_wrapper_script nm     emnm
     make_wrapper_script ranlib emranlib
+
+    echo "Wrapper scripts installed."
 }
 
 check_tool wasm32-unknown-emscripten-gcc
