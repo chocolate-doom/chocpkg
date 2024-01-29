@@ -6,9 +6,10 @@ BUILD_HOST=
 # An example of how to cross-compile to mingw32 for Windows builds:
 #BUILD_HOST=i686-w64-mingw32
 
-# Build host to use for Emscripten builds. Uncomment and then run
+# Build host to use for Emscripten builds. You will need to first install
+# the emscripten SDK, then uncomment and then run
 # `chocpkg install emscripten`.
-BUILD_HOST=wasm32-unknown-emscripten
+#BUILD_HOST=wasm32-unknown-emscripten
 
 # If we're cross-compiling to a different platform, this should be set
 # to true. We initialize this based on whether BUILD_HOST has been set.
